@@ -2,6 +2,12 @@
 
 USING_NS_CC;
 
+
+
+GLuint vertexBuffer;
+GLuint indexBuffer;
+
+
 Scene* HelloWorld::createScene()
 {
     // 'scene' is an autorelease object
@@ -58,6 +64,12 @@ bool HelloWorld::init()
     _textureID =  Director::getInstance()->getTextureCache()->addImage("HelloWorld.png")->getName();
 
     
+    glGenBuffers(1, &vertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    
+    glGenBuffers(1, &indexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+    
     return true;
 }
 
@@ -95,65 +107,54 @@ void HelloWorld::onDraw()
     kmGLMatrixMode(KM_GL_PROJECTION);
     kmGLLoadIdentity();
     
-    //call your own opengl commands here
     
     mShaderProgram->use();
     mShaderProgram->setUniformsForBuiltins();
     
-    //set color for each vertex  note:the color value is between 0-1
-
-//    mShaderProgram->setUniformLocationWith4f(mColorLocation, 0.5, 0.5, 0.5, 1);
+    typedef struct {
+        float Position[3];
+        float Color[4];
+        float tex[2];
+    } Vertex;
     
+    Vertex Vertices[] = {
+        {{-1, -1, 0}, {1, 1, 1, 1}, {0,1}},
+        {{1, -1, 0}, {1, 1, 1, 1}, {1,1}},
+        {{1, 1, 0}, {1, 1, 1, 1}, {1,0}},
+        {{-1, 1, 0}, {1, 1, 1, 1}, {0,0}}
+    };
+    int vertexCount = sizeof(Vertices) / sizeof(Vertices[0]);
     
-    int vertexCount = 6;
-//    GLfloat    glVertices[] =
-//    {
-//        200.f, 300.0f,
-//        300.f, 300.0f,
-//        250.0f,400
-//    };
-    GLfloat    glVertices[] =
-    {
-        -1.f, -1.0f, 0,
-        1.f, -1.0f, 0,
-        1.0f,1.0f, 0,
-        1.f, 1.0f, 0,
-        -1.0f,1.0f, 0,
-        -1.f, -1.0f, 0,
+    GLubyte Indices[] = {
+        0, 1, 2,
+        2,3,0
     };
     
-    GLfloat color[] = { 1.0f, 1.0f, 1.0f, 1.0f,
-                        1.0f, 1.0f, 1.0f, 1.0f,
-                        1.0f, 1.0f, 1.0f, 1.0f,
-                        1.0f, 1.0f, 1.0f, 1.0f,
-                        1.0f, 1.0f, 1.0f, 1.0f,
-                        1.0f, 1.0f, 1.0f, 1.0f};
+       //set color for each vertex  note:the color value is between 0-1
+
+//    mShaderProgram->setUniformLocationWith4f(mColorLocation, 0.5, 0.5, 0.5, 1);
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
+    
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
     
     
-    //note: opengl texture coordinate origin at top-left corner of the screen
-    GLfloat textureCoord[] = {  0,1,
-                                1,1,
-                                1,0,
-                                1,0,
-                                0,0,
-                                0,1};
-    
-//    GL::enableVertexAttribs( GL::VERTEX_ATTRIB_FLAG_POSITION | GL::VERTEX_ATTRIB_FLAG_COLOR
-//                            | GL::VERTEX_ATTRIB_FLAG_TEX_COORDS);
-    //method 2:
     GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
     
+    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
     
-    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, 0, glVertices);
+    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),(GLvoid*)(sizeof(float) * 3));
     
-    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 4, GL_FLOAT, GL_FALSE, 0, color);
-    
-    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_TEX_COORDS, 2, GL_FLOAT, GL_FALSE, 0, textureCoord);
-    
+    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_TEX_COORDS, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+                          (GLvoid*)(sizeof(float) * 7));
+//    
     GL::bindTexture2D(_textureID);
+   
+   
     
-    
-    glDrawArrays(GL_TRIANGLES, 0, vertexCount);
+    glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]),
+                   GL_UNSIGNED_BYTE, 0);
     
     CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1,vertexCount);
     
