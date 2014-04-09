@@ -37,6 +37,7 @@ private:
     
     
     GLuint _textureID;
+    GLuint _textureID2;
     Texture2D *_texture;
 };
 

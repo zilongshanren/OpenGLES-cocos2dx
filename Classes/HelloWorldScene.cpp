@@ -63,6 +63,7 @@ bool HelloWorld::init()
     
     //how to map texture HelloWorld.png to my triangles
     _textureID =  Director::getInstance()->getTextureCache()->addImage("HelloWorld.png")->getName();
+    _textureID2 = Director::getInstance()->getTextureCache()->addImage("CloseNormal.png")->getName();
 
     
     glGenBuffers(1, &vertexBuffer);
@@ -245,8 +246,13 @@ void HelloWorld::onDraw()
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     
-    glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]),
-                   GL_UNSIGNED_BYTE, 0);
+    glDrawElements(GL_TRIANGLES,  18, GL_UNSIGNED_BYTE, 0);
+    
+    mShaderProgram->setUniformLocationWith1i(_textureUniform, 0);
+
+    
+    GL::bindTexture2D(_textureID2);
+    glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_BYTE, (void*)(18 * sizeof(GLubyte)));
     
     
        mShaderProgram->setUniformLocationWith1i(_textureUniform, 0);
