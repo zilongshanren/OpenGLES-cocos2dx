@@ -26,7 +26,16 @@ private:
     CustomCommand _customCommand;
     
     GLProgram *mShaderProgram;
-    GLint mColorLocation;
+    GLint _colorLocation;
+    GLint _positionLocation;
+    GLint _textureLocation;
+    
+    
+    GLuint _projectionUniform;
+    GLuint _modelViewUniform;
+    GLuint _textureUniform;
+    
+    
     GLuint _textureID;
     Texture2D *_texture;
 };

@@ -6,9 +6,11 @@
 
 */
 
-varying vec4 fragmentColor;
+varying lowp vec4 DestinationColor; // 1
 
-void main()
-{
-    gl_FragColor = fragmentColor;
+uniform sampler2D CC_Texture0;
+varying vec2 v_texCoord;
+
+void main(void) { // 2
+    gl_FragColor = DestinationColor * texture2D(CC_Texture0, v_texCoord); // 3
 }

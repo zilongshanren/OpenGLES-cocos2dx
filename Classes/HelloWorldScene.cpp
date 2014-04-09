@@ -43,22 +43,23 @@ bool HelloWorld::init()
 
     
     //方法2:使用系统内置的shader 无mvp
-    mShaderProgram = ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP);
+//    mShaderProgram = ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP);
+    
     //方法3：使用自己的shader
-//    mShaderProgram = new GLProgram;
-//    //如果使用下面的bindAttribLocation的话，那么position和color分别要命名为 a_position和a_color
-//    mShaderProgram->initWithFilenames("myshader.vert", "myshader.frag");
-//    mShaderProgram->bindAttribLocation(GLProgram::ATTRIBUTE_NAME_POSITION, GLProgram::VERTEX_ATTRIB_POSITION);
-//    mShaderProgram->bindAttribLocation(GLProgram::ATTRIBUTE_NAME_COLOR, GLProgram::VERTEX_ATTRIB_COLOR);
-//    
-//    //don't forget to call link and updateUniforms.
-//    mShaderProgram->link();
-//    mShaderProgram->updateUniforms();
+    mShaderProgram = new GLProgram;
+    //如果使用下面的bindAttribLocation的话，那么position和color分别要命名为 a_position和a_color
+    mShaderProgram->initWithFilenames("myshader.vert", "myshader.frag");
+    mShaderProgram->bindAttribLocation(GLProgram::ATTRIBUTE_NAME_POSITION, GLProgram::VERTEX_ATTRIB_POSITION);
+    mShaderProgram->bindAttribLocation(GLProgram::ATTRIBUTE_NAME_COLOR, GLProgram::VERTEX_ATTRIB_COLOR);
+    
+    //don't forget to call link and updateUniforms.
+    mShaderProgram->link();
+    mShaderProgram->updateUniforms();
 
     //maybe I should call delete when the HelloWorldScene get destoryed
 
     
-    mColorLocation = glGetUniformLocation( mShaderProgram->getProgram(), "a_color");
+    _colorLocation = glGetUniformLocation( mShaderProgram->getProgram(), "SourceColor");
     
     //how to map texture HelloWorld.png to my triangles
     _textureID =  Director::getInstance()->getTextureCache()->addImage("HelloWorld.png")->getName();
@@ -105,29 +106,75 @@ void HelloWorld::onDraw()
     kmGLGetMatrix(KM_GL_PROJECTION, &oldProj);
     
     kmGLMatrixMode(KM_GL_PROJECTION);
-    kmGLLoadIdentity();
     
+    //想显示3d cubic的时候，不能够把projection matrix设置为对等矩阵
+//    kmGLLoadIdentity();
     
-    mShaderProgram->use();
-    mShaderProgram->setUniformsForBuiltins();
+    kmGLMatrixMode(KM_GL_MODELVIEW);
+    
+    //mShaderProgram->use();
+    //we don't need any builtin Uniforms, since we will add our mvp matrix all by hand
     
     typedef struct {
         float Position[3];
         float Color[4];
         float tex[2];
     } Vertex;
-    
+#define TEX_COORD_MAX   1
+
     Vertex Vertices[] = {
-        {{-1, -1, 0}, {1, 1, 1, 1}, {0,1}},
-        {{1, -1, 0}, {1, 1, 1, 1}, {1,1}},
-        {{1, 1, 0}, {1, 1, 1, 1}, {1,0}},
-        {{-1, 1, 0}, {1, 1, 1, 1}, {0,0}}
+        // Front
+        {{1, -1, 0}, {1, 0, 0, 1}, {TEX_COORD_MAX, 0}},
+        {{1, 1, 0}, {0, 1, 0, 1}, {TEX_COORD_MAX, TEX_COORD_MAX}},
+        {{-1, 1, 0}, {0, 0, 1, 1}, {0, TEX_COORD_MAX}},
+        {{-1, -1, 0}, {0, 0, 0, 1}, {0, 0}},
+        // Back
+        {{1, 1, -2}, {1, 0, 0, 1}, {TEX_COORD_MAX, 0}},
+        {{-1, -1, -2}, {0, 1, 0, 1}, {TEX_COORD_MAX, TEX_COORD_MAX}},
+        {{1, -1, -2}, {0, 0, 1, 1}, {0, TEX_COORD_MAX}},
+        {{-1, 1, -2}, {0, 0, 0, 1}, {0, 0}},
+        // Left
+        {{-1, -1, 0}, {1, 0, 0, 1}, {TEX_COORD_MAX, 0}},
+        {{-1, 1, 0}, {0, 1, 0, 1}, {TEX_COORD_MAX, TEX_COORD_MAX}},
+        {{-1, 1, -2}, {0, 0, 1, 1}, {0, TEX_COORD_MAX}},
+        {{-1, -1, -2}, {0, 0, 0, 1}, {0, 0}},
+        // Right
+        {{1, -1, -2}, {1, 0, 0, 1}, {TEX_COORD_MAX, 0}},
+        {{1, 1, -2}, {0, 1, 0, 1}, {TEX_COORD_MAX, TEX_COORD_MAX}},
+        {{1, 1, 0}, {0, 0, 1, 1}, {0, TEX_COORD_MAX}},
+        {{1, -1, 0}, {0, 0, 0, 1}, {0, 0}},
+        // Top
+        {{1, 1, 0}, {1, 0, 0, 1}, {TEX_COORD_MAX, 0}},
+        {{1, 1, -2}, {0, 1, 0, 1}, {TEX_COORD_MAX, TEX_COORD_MAX}},
+        {{-1, 1, -2}, {0, 0, 1, 1}, {0, TEX_COORD_MAX}},
+        {{-1, 1, 0}, {0, 0, 0, 1}, {0, 0}},
+        // Bottom
+        {{1, -1, -2}, {1, 0, 0, 1}, {TEX_COORD_MAX, 0}},
+        {{1, -1, 0}, {0, 1, 0, 1}, {TEX_COORD_MAX, TEX_COORD_MAX}},
+        {{-1, -1, 0}, {0, 0, 1, 1}, {0, TEX_COORD_MAX}}, 
+        {{-1, -1, -2}, {0, 0, 0, 1}, {0, 0}}
     };
     int vertexCount = sizeof(Vertices) / sizeof(Vertices[0]);
     
     GLubyte Indices[] = {
+        // Front
         0, 1, 2,
-        2,3,0
+        2, 3, 0,
+        // Back
+        4, 5, 6,
+        4, 5, 7,
+        // Left
+        8, 9, 10,
+        10, 11, 8,
+        // Right
+        12, 13, 14,
+        14, 15, 12,
+        // Top
+        16, 17, 18,
+        18, 19, 16,
+        // Bottom
+        20, 21, 22,
+        22, 23, 20
     };
     
        //set color for each vertex  note:the color value is between 0-1
@@ -140,21 +187,69 @@ void HelloWorld::onDraw()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
     
     
-    GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
     
-    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+    _positionLocation = glGetAttribLocation(mShaderProgram->getProgram(), "Position");
+    _colorLocation = glGetAttribLocation(mShaderProgram->getProgram(), "SourceColor");
+    _projectionUniform = glGetUniformLocation(mShaderProgram->getProgram(), "Projection");
+    _modelViewUniform = glGetUniformLocation(mShaderProgram->getProgram(), "Modelview");
+    _textureLocation = glGetAttribLocation(mShaderProgram->getProgram(), "TextureCoord");
+    _textureUniform = glGetUniformLocation(mShaderProgram->getProgram(), "CC_Texture0");
     
-    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),(GLvoid*)(sizeof(float) * 3));
+    kmGLPushMatrix();
     
-    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_TEX_COORDS, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
+    kmGLLoadIdentity();
+   
+    auto winSize = Director::getInstance()->getWinSizeInPixels();
+//    float zeye = Director::getInstance()->getZEye();
+//    float zfarPlane = zeye + winSize.height/2;
+    static float rotation = 0;
+    //kmGLRotatef(20, 0, 0, 1);
+    //the order to call translate/rotate/scale matters
+    //in kzMath, the order should be translate -> rotate -> scale
+    //in generate mv = t * r * s * m;
+    kmGLTranslatef(winSize.width/2, winSize.height/2, 0 );
+    kmGLRotatef(rotation++, 1, 1, 1);
+    kmGLScalef(150, 150, 150 ); //we must scale the model coordinate such that we can see the model with the zNear and far plane
+
+
+    if (rotation >= 360 ) {
+        rotation = 0;
+    }
+    //kmGLTranslatef(0, 0, -0.1);
+    kmMat4 modelView;
+    kmGLGetMatrix(KM_GL_MODELVIEW, &modelView);
+    mShaderProgram->use();
+    mShaderProgram->setUniformsForBuiltins();
+
+    mShaderProgram->setUniformLocationWithMatrix4fv(_modelViewUniform, modelView.mat , 1);
+    
+   
+    
+    kmGLPopMatrix();
+    
+//    GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
+    //this two calls are replacement for the above call
+    glEnableVertexAttribArray(_positionLocation);
+    glEnableVertexAttribArray(_colorLocation);
+    glEnableVertexAttribArray(_textureLocation);
+    
+    glVertexAttribPointer(_positionLocation, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
+    
+    glVertexAttribPointer(_colorLocation, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),(GLvoid*)(sizeof(float) * 3));
+    
+    glVertexAttribPointer(_textureLocation, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
                           (GLvoid*)(sizeof(float) * 7));
-//    
+//
+    //set sampler
     GL::bindTexture2D(_textureID);
-   
-   
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
     
     glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]),
                    GL_UNSIGNED_BYTE, 0);
+    
+    
+       mShaderProgram->setUniformLocationWith1i(_textureUniform, 0);
     
     CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1,vertexCount);
     
