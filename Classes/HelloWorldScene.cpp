@@ -124,7 +124,11 @@ bool HelloWorld::init()
     //how to map texture HelloWorld.png to my triangles
     _textureID =  Director::getInstance()->getTextureCache()->addImage("guanyu1.png")->getName();
 
-        
+    
+    m_animation.Elapsed = 0;
+    m_animation.Start = m_animation.Current = m_animation.End;
+    m_animation.End = Quaternion::CreateFromVectors(vec3(0, 1, 0), vec3(1.0, 0, 0));
+
     
     glGenBuffers(1, &vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -174,14 +178,20 @@ void HelloWorld::onDraw()
     
     
     mat4 rotation(m_animation.Current.ToMatrix());
-    mat4 translation = mat4::Translate(0, 0, -7);
+    mat4 translation = mat4::Translate(0, 0, -0.5);
     
     // Set the model-view matrix.
-//    GLint modelviewUniform = glGetUniformLocation(m_simpleProgram, "Modelview");
-//    mat4 modelviewMatrix = rotation * translation;
-//    glUniformMatrix4fv(modelviewUniform, 1, 0, modelviewMatrix.Pointer());
+    GLint modelviewUniform = glGetUniformLocation(mShaderProgram->getProgram(), "modelView");
+    mat4 modelviewMatrix = rotation * translation;
+    glUniformMatrix4fv(modelviewUniform, 1, 0, modelviewMatrix.Pointer());
     
 
+ 
+    static float timeStep = 1.0 / 60.0f;
+    m_animation.Elapsed += timeStep;
+ 
+    float mu = m_animation.Elapsed / 0.25f;
+    m_animation.Current = m_animation.Start.Slerp(mu, m_animation.End);
 
            //set color for each vertex  note:the color value is between 0-1
 

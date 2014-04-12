@@ -10,11 +10,11 @@
 attribute vec4 a_position;
 attribute vec4 a_color;
 
-
+uniform mat4 modelView;
 varying vec4 fragmentColor;
 
 void main()
 {
-    gl_Position = CC_PMatrix * a_position;
+    gl_Position = CC_PMatrix * modelView * a_position;
     fragmentColor = a_color;
 }
