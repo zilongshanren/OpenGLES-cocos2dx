@@ -3,13 +3,10 @@
   MyCppGame
 
   Created by guanghui on 4/8/14.
-
+http://www.idevgames.com/forums/thread-3010.html
 */
 
 varying vec4 fragmentColor;
-
-uniform float width;
-uniform float height;
 
 uniform sampler2D CC_Texture0;
 varying vec2 v_texCoord;

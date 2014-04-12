@@ -38,11 +38,7 @@ bool HelloWorld::init()
     label->setPosition(Point(winSize.width/2, winSize.height/2));
     label->setVisible(false);
     this->addChild(label);
-    
-    auto bg = Sprite::create("HelloWorld.png");
-    bg->setPosition(Point(winSize.width/2, winSize.height/2));
-    bg->setScale(2.0, 2.0);
-    this->addChild(bg, -1);
+
     
     //方法1：使用有mvp的shader  注意坐标的变化
 //    mShaderProgram = ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_U_COLOR);
@@ -69,6 +65,18 @@ bool HelloWorld::init()
     //how to map texture HelloWorld.png to my triangles
     _textureID =  Director::getInstance()->getTextureCache()->addImage("guanyu1.png")->getName();
 
+    Sprite *guanYuSprite = Sprite::create("guanyu1.png");
+    guanYuSprite->setPosition(Point(winSize.width/2 - 200, winSize.height/2));
+    guanYuSprite->setScale(3.0f);
+    this->addChild(guanYuSprite);
+    
+    guanYuSprite->setShaderProgram(mShaderProgram);
+    
+    MoveBy *moveBy = MoveBy::create(1.0, Point(400,0));
+    auto reverse = moveBy->reverse();
+    auto action = RepeatForever::create(Sequence::create(moveBy,reverse, NULL));
+    guanYuSprite->runAction(action);
+    
     
     glGenBuffers(1, &vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -82,7 +90,7 @@ bool HelloWorld::init()
 void HelloWorld::draw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool transformUpdated)
 {
     Layer::draw(renderer, transform, transformUpdated);
-    
+
     
     kmGLPushMatrix();
     kmGLGetMatrix(KM_GL_MODELVIEW, &_modelViewMV);
@@ -123,12 +131,13 @@ void HelloWorld::onDraw()
     } Vertex;
     
     Vertex Vertices[] = {
-        {{-1, -1, 0}, {1, 1, 1, 1}, {0,1}},
-        {{1, -1, 0}, {1, 1, 1, 1}, {1,1}},
-        {{1, 1, 0}, {1, 1, 1, 1}, {1,0}},
-        {{-1, 1, 0}, {1, 1, 1, 1}, {0,0}}
+        {{-0.5, -0.5, 0}, {1, 1, 1, 1}, {0,1}},
+        {{0.5, -0.5, 0}, {1, 1, 1, 1}, {1,1}},
+        {{0.5, 0.5, 0}, {1, 1, 1, 1}, {1,0}},
+        {{-0.5, 0.5, 0}, {1, 1, 1, 1}, {0,0}}
     };
     int vertexCount = sizeof(Vertices) / sizeof(Vertices[0]);
+    
     
     GLubyte Indices[] = {
         0, 1, 2,
@@ -143,14 +152,6 @@ void HelloWorld::onDraw()
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
-    
-    GLuint heightLocation = glGetUniformLocation(mShaderProgram->getProgram(), "height");
-    GLuint widthLocation = glGetUniformLocation(mShaderProgram->getProgram(), "width");
-    
-    
-    
-    glUniform1f(heightLocation, 100.0f);
-    glUniform1f(widthLocation, 100.0f);
 
     
     
