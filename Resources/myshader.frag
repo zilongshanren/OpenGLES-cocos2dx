@@ -8,7 +8,10 @@
 
 varying vec4 fragmentColor;
 
+uniform sampler2D CC_Texture0;
+varying vec2 v_texCoord;
+
 void main()
 {
-    gl_FragColor = fragmentColor;
+    gl_FragColor = fragmentColor * texture2D(CC_Texture0, v_texCoord);
 }

@@ -43,17 +43,17 @@ bool HelloWorld::init()
 
     
     //方法2:使用系统内置的shader 无mvp
-    mShaderProgram = ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP);
+//    mShaderProgram = ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_TEXTURE_COLOR_NO_MVP);
     //方法3：使用自己的shader
-//    mShaderProgram = new GLProgram;
-//    //如果使用下面的bindAttribLocation的话，那么position和color分别要命名为 a_position和a_color
-//    mShaderProgram->initWithFilenames("myshader.vert", "myshader.frag");
-//    mShaderProgram->bindAttribLocation(GLProgram::ATTRIBUTE_NAME_POSITION, GLProgram::VERTEX_ATTRIB_POSITION);
-//    mShaderProgram->bindAttribLocation(GLProgram::ATTRIBUTE_NAME_COLOR, GLProgram::VERTEX_ATTRIB_COLOR);
-//    
-//    //don't forget to call link and updateUniforms.
-//    mShaderProgram->link();
-//    mShaderProgram->updateUniforms();
+    mShaderProgram = new GLProgram;
+    //如果使用下面的bindAttribLocation的话，那么position和color分别要命名为 a_position和a_color
+    mShaderProgram->initWithFilenames("myshader.vert", "myshader.frag");
+    mShaderProgram->bindAttribLocation(GLProgram::ATTRIBUTE_NAME_POSITION, GLProgram::VERTEX_ATTRIB_POSITION);
+    mShaderProgram->bindAttribLocation(GLProgram::ATTRIBUTE_NAME_COLOR, GLProgram::VERTEX_ATTRIB_COLOR);
+    
+    //don't forget to call link and updateUniforms.
+    mShaderProgram->link();
+    mShaderProgram->updateUniforms();
 
     //maybe I should call delete when the HelloWorldScene get destoryed
 
@@ -61,7 +61,7 @@ bool HelloWorld::init()
     mColorLocation = glGetUniformLocation( mShaderProgram->getProgram(), "a_color");
     
     //how to map texture HelloWorld.png to my triangles
-    _textureID =  Director::getInstance()->getTextureCache()->addImage("HelloWorld.png")->getName();
+    _textureID =  Director::getInstance()->getTextureCache()->addImage("guanyu1.png")->getName();
 
     
     glGenBuffers(1, &vertexBuffer);
