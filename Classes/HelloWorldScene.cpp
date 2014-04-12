@@ -124,19 +124,7 @@ bool HelloWorld::init()
     //how to map texture HelloWorld.png to my triangles
     _textureID =  Director::getInstance()->getTextureCache()->addImage("guanyu1.png")->getName();
 
-    Sprite *guanYuSprite = Sprite::create("guanyu1.png");
-    guanYuSprite->setPosition(Point(winSize.width/2 - 200, winSize.height/2));
-    guanYuSprite->setColor(Color3B::GRAY);
-    guanYuSprite->setScale(3.0f);
-    this->addChild(guanYuSprite);
-    
-    guanYuSprite->setShaderProgram(mShaderProgram);
-    
-    MoveBy *moveBy = MoveBy::create(1.0, Point(400,0));
-    auto reverse = moveBy->reverse();
-    auto action = RepeatForever::create(Sequence::create(moveBy,reverse, NULL));
-    guanYuSprite->runAction(action);
-    
+        
     
     glGenBuffers(1, &vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -184,54 +172,48 @@ void HelloWorld::onDraw()
     mShaderProgram->use();
     mShaderProgram->setUniformsForBuiltins();
     
-    typedef struct {
-        float Position[3];
-        float Color[4];
-        float tex[2];
-    } Vertex;
     
-    Vertex Vertices[] = {
-        {{-0.5, -0.5, 0}, {1, 1, 1, 1}, {0,1}},
-        {{0.5, -0.5, 0}, {1, 1, 1, 1}, {1,1}},
-        {{0.5, 0.5, 0}, {1, 1, 1, 1}, {1,0}},
-        {{-0.5, 0.5, 0}, {1, 1, 1, 1}, {0,0}}
-    };
-    int vertexCount = sizeof(Vertices) / sizeof(Vertices[0]);
+    mat4 rotation(m_animation.Current.ToMatrix());
+    mat4 translation = mat4::Translate(0, 0, -7);
     
+    // Set the model-view matrix.
+//    GLint modelviewUniform = glGetUniformLocation(m_simpleProgram, "Modelview");
+//    mat4 modelviewMatrix = rotation * translation;
+//    glUniformMatrix4fv(modelviewUniform, 1, 0, modelviewMatrix.Pointer());
     
-    GLubyte Indices[] = {
-        0, 1, 2,
-        2,3,0
-    };
-    
-       //set color for each vertex  note:the color value is between 0-1
+
+
+           //set color for each vertex  note:the color value is between 0-1
 
 //    mShaderProgram->setUniformLocationWith4f(mColorLocation, 0.5, 0.5, 0.5, 1);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW);
-    
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
-
-    
-    
-    GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
-    
-    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), 0);
-    
-    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex),(GLvoid*)(sizeof(float) * 3));
-    
-    glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_TEX_COORDS, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                          (GLvoid*)(sizeof(float) * 7));
-//    
-    GL::bindTexture2D(_textureID);
-   
+//    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+//    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex), &m_cone[0], GL_STATIC_DRAW);
    
     
-    glDrawElements(GL_TRIANGLES, sizeof(Indices)/sizeof(Indices[0]),
-                   GL_UNSIGNED_BYTE, 0);
+    GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_COLOR | GL::VERTEX_ATTRIB_FLAG_POSITION);
     
-    CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1,vertexCount);
+    // Draw the cone.
+    {
+        GLsizei stride = sizeof(Vertex);
+        const GLvoid* pCoords = &m_cone[0].Position.x;
+        const GLvoid* pColors = &m_cone[0].Color.x;
+        glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, stride, pCoords);
+        glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 4, GL_FLOAT, GL_FALSE, stride, pColors);
+        glDrawArrays(GL_TRIANGLE_STRIP, 0, m_cone.size());
+    }
+    
+    // Draw the disk that caps off the base of the cone.
+    {
+        GLsizei stride = sizeof(Vertex);
+        const GLvoid* pCoords = &m_disk[0].Position.x;
+        const GLvoid* pColors = &m_disk[0].Color.x;
+        glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, stride, pCoords);
+        glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 4, GL_FLOAT, GL_FALSE, stride, pColors);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, m_disk.size());
+    }
+    
+    
+    CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(2,m_cone.size() + m_disk.size());
     
     CHECK_GL_ERROR_DEBUG();
     
