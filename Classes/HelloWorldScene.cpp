@@ -36,7 +36,13 @@ bool HelloWorld::init()
     
     auto label = Label::create("Hello Triangle!", "Arial", 40);
     label->setPosition(Point(winSize.width/2, winSize.height/2));
+    label->setVisible(false);
     this->addChild(label);
+    
+    auto bg = Sprite::create("HelloWorld.png");
+    bg->setPosition(Point(winSize.width/2, winSize.height/2));
+    bg->setScale(2.0, 2.0);
+    this->addChild(bg, -1);
     
     //方法1：使用有mvp的shader  注意坐标的变化
 //    mShaderProgram = ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_U_COLOR);
@@ -107,7 +113,6 @@ void HelloWorld::onDraw()
     kmGLMatrixMode(KM_GL_PROJECTION);
     kmGLLoadIdentity();
     
-    
     mShaderProgram->use();
     mShaderProgram->setUniformsForBuiltins();
     
@@ -138,6 +143,15 @@ void HelloWorld::onDraw()
     
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(Indices), Indices, GL_STATIC_DRAW);
+    
+    GLuint heightLocation = glGetUniformLocation(mShaderProgram->getProgram(), "height");
+    GLuint widthLocation = glGetUniformLocation(mShaderProgram->getProgram(), "width");
+    
+    
+    
+    glUniform1f(heightLocation, 100.0f);
+    glUniform1f(widthLocation, 100.0f);
+
     
     
     GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POS_COLOR_TEX);
