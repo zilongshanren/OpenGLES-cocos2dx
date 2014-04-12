@@ -23,6 +23,64 @@ Scene* HelloWorld::createScene()
     return scene;
 }
 
+void HelloWorld::initCone()
+{
+    const float coneRadius = 0.5f;
+    const float coneHeight = 1.866f;
+    const int coneSlices = 40;
+    
+    {
+        // Allocate space for the cone vertices.
+        m_cone.resize((coneSlices + 1) * 2);
+        
+        // Initialize the vertices of the triangle strip.
+        vector<Vertex>::iterator vertex = m_cone.begin();
+        const float dtheta = TwoPi / coneSlices;
+        for (float theta = 0; vertex != m_cone.end(); theta += dtheta) {
+            
+            // Grayscale gradient
+            float brightness = abs(sin(theta));
+            vec4 color(brightness, brightness, brightness, 1);
+            
+            // Apex vertex
+            vertex->Position = vec3(0, 1, 0);
+            vertex->Color = color;
+            vertex++;
+            
+            // Rim vertex
+            vertex->Position.x = coneRadius * cos(theta);
+            vertex->Position.y = 1 - coneHeight;
+            vertex->Position.z = coneRadius * sin(theta);
+            vertex->Color = color;
+            vertex++;
+        }
+    }
+    
+    {
+        // Allocate space for the disk vertices.
+        m_disk.resize(coneSlices + 2);
+        
+        // Initialize the center vertex of the triangle fan.
+        vector<Vertex>::iterator vertex = m_disk.begin();
+        vertex->Color = vec4(0.75, 0.75, 0.75, 1);
+        vertex->Position.x = 0;
+        vertex->Position.y = 1 - coneHeight;
+        vertex->Position.z = 0;
+        vertex++;
+        
+        // Initialize the rim vertices of the triangle fan.
+        const float dtheta = TwoPi / coneSlices;
+        for (float theta = 0; vertex != m_disk.end(); theta += dtheta) {
+            vertex->Color = vec4(0.75, 0.75, 0.75, 1);
+            vertex->Position.x = coneRadius * cos(theta);
+            vertex->Position.y = 1 - coneHeight;
+            vertex->Position.z = coneRadius * sin(theta);
+            vertex++;
+        }
+    }
+
+}
+
 // on "init" you need to initialize your instance
 bool HelloWorld::init()
 {
@@ -39,6 +97,7 @@ bool HelloWorld::init()
     label->setVisible(false);
     this->addChild(label);
 
+    this->initCone();
     
     //方法1：使用有mvp的shader  注意坐标的变化
 //    mShaderProgram = ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_U_COLOR);
