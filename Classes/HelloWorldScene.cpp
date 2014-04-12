@@ -67,6 +67,7 @@ bool HelloWorld::init()
 
     Sprite *guanYuSprite = Sprite::create("guanyu1.png");
     guanYuSprite->setPosition(Point(winSize.width/2 - 200, winSize.height/2));
+    guanYuSprite->setColor(Color3B::GRAY);
     guanYuSprite->setScale(3.0f);
     this->addChild(guanYuSprite);
     
