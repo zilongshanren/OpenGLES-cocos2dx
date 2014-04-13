@@ -45,6 +45,7 @@ private:
     
     GLProgram *mShaderProgram;
     GLint mColorLocation;
+    GLint mPositionLocation;
     GLuint _textureID;
     Texture2D *_texture;
     

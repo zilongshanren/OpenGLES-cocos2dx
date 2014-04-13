@@ -79,7 +79,6 @@ void HelloWorld::initCone()
 bool HelloWorld::init()
 {
     
-//    this->initCone();
 
     //////////////////////////////
     // 1. super init first
@@ -123,80 +122,31 @@ bool HelloWorld::init()
     this->setTouchMode(Touch::DispatchMode::ONE_BY_ONE);
     
     
-    mColorLocation = glGetUniformLocation( mShaderProgram->getProgram(), "a_color");
+    mColorLocation = glGetAttribLocation( mShaderProgram->getProgram(), "a_color");
+    mPositionLocation = glGetAttribLocation(mShaderProgram->getProgram(), "a_position");
     
     //how to map texture HelloWorld.png to my triangles
     _textureID =  Director::getInstance()->getTextureCache()->addImage("guanyu1.png")->getName();
 
     
-    const float coneRadius = 0.5f;
-    const float coneHeight = 1.866f;
-    const int coneSlices = 40;
-    const float dtheta = TwoPi / coneSlices;
-    const int vertexCount = coneSlices * 2 + 1;
-    const int diskCenterIndex = vertexCount - 1;
-    
-    m_bodyIndexCount = coneSlices * 3;
-    m_diskIndexCount = coneSlices * 3;
-    
-    vector<Vertex> coneVertices(vertexCount);
-    vector<Vertex>::iterator vertex = coneVertices.begin();
-    
-    // Cone's body
-    for (float theta = 0; vertex != coneVertices.end() - 1; theta += dtheta) {
-        
-        // Grayscale gradient
-        float brightness = abs(sin(theta));
-        vec4 color(brightness, brightness, brightness, 1);
-        
-        // Apex vertex
-        vertex->Position = vec3(0, 1, 0);
-        vertex->Color = color;
-        vertex++;
-        
-        // Rim vertex
-        vertex->Position.x = coneRadius * cos(theta);
-        vertex->Position.y = 1 - coneHeight;
-        vertex->Position.z = coneRadius * sin(theta);
-        vertex->Color = color;
-        vertex++;
-    }
-    
-    // Disk center
-    vertex->Position = vec3(0, 1 - coneHeight, 0);
-    vertex->Color = vec4(1, 1, 1, 1);
+    this->initCone();
+
     
     // Create the VBO for the vertices.
     glGenBuffers(1, &vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     glBufferData(GL_ARRAY_BUFFER,
-                 coneVertices.size() * sizeof(coneVertices[0]),
-                 &coneVertices[0],
+                 m_coneVertices.size() * sizeof(m_coneVertices[0]),
+                 &m_coneVertices[0],
                  GL_STATIC_DRAW);
     
-    vector<GLubyte> coneIndices(m_bodyIndexCount + m_diskIndexCount);
-    vector<GLubyte>::iterator index = coneIndices.begin();
-    
-    // Body triangles
-    for (int i = 0; i < coneSlices * 2; i += 2) {
-        *index++ = i;
-        *index++ = (i + 1) % (2 * coneSlices);
-        *index++ = (i + 3) % (2 * coneSlices);
-    }
-    
-    // Disk triangles
-    for (int i = 1; i < coneSlices * 2 + 1; i += 2) {
-        *index++ = diskCenterIndex;
-        *index++ = i;
-        *index++ = (i + 2) % (2 * coneSlices);
-    }
-    
+  
     // Create the VBO for the indices.
     glGenBuffers(1, &indexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 coneIndices.size() * sizeof(coneIndices[0]),
-                 &coneIndices[0],
+                 m_coneIndices.size() * sizeof(m_coneIndices[0]),
+                 &m_coneIndices[0],
                  GL_STATIC_DRAW);
     
  
@@ -258,20 +208,30 @@ void HelloWorld::onDraw()
     GLsizei stride = sizeof(Vertex);
 //    const GLvoid* pCoords = &m_coneVertices[0].Position.x;
 //    const GLvoid* pColors = &m_coneVertices[0].Color.x;
-    GL::enableVertexAttribs( GL::VERTEX_ATTRIB_FLAG_POSITION | GL::VERTEX_ATTRIB_FLAG_COLOR);
-
     
 
-    glVertexAttribPointer(GL::VERTEX_ATTRIB_FLAG_POSITION, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)0);
-    glVertexAttribPointer(GL::VERTEX_ATTRIB_FLAG_COLOR, 4, GL_FLOAT, GL_FALSE, stride, (GLvoid*)sizeof(vec3));
-    
-//    const GLvoid* bodyIndices = 0;
-    const GLvoid* diskIndices = &m_bodyIndexCount;
-    
+//    glEnableVertexAttribArray(mPositionLocation);
+//    glEnableVertexAttribArray(mColorLocation);
+//    
+
+    GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POSITION | GL::VERTEX_ATTRIB_FLAG_COLOR);
+    //使用vbo的话，一定要先enable，然后再调用bind,另外，一定要使用vbo
+    //如果不使用vbo的话，那么glVertexAttribPointer接的是内存地址，而不是偏移。
+    //不使用vbo是直接从cpu传数据，使用vbo是先把数据传给gpu，然后从gpu里面去取
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 
-    glDrawElements(GL_TRIANGLES, m_bodyIndexCount, GL_UNSIGNED_BYTE, (GLvoid*)0);
+    
+    glVertexAttribPointer(mPositionLocation, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)0);
+    glVertexAttribPointer(mColorLocation, 4, GL_FLOAT, GL_FALSE, stride, (GLvoid*)sizeof(vec3));
+    
+    const GLvoid* bodyIndices = (GLvoid*)0;
+    //千万不能写成
+    //    const GLvoid* diskIndices = &m_bodyIndexCount;
+    const GLvoid* diskIndices = (GLvoid*)m_bodyIndexCount;
+    
+    
+    glDrawElements(GL_TRIANGLES, m_bodyIndexCount, GL_UNSIGNED_BYTE, bodyIndices);
     
     glDrawElements(GL_TRIANGLES, m_diskIndexCount, GL_UNSIGNED_BYTE, diskIndices);
     
