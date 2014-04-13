@@ -127,7 +127,7 @@ bool HelloWorld::init()
     
     m_animation.Elapsed = 0;
     m_animation.Start = m_animation.Current = m_animation.End;
-    m_animation.End = Quaternion::CreateFromVectors(vec3(0, 1, 0), vec3(1.0, 0, 0));
+    m_animation.End = Quaternion::CreateFromAxisAngle(vec3(1.0,1.0,0), 3.14 / 2);
 
     
     glGenBuffers(1, &vertexBuffer);
@@ -175,14 +175,14 @@ void HelloWorld::onDraw()
     
     mShaderProgram->use();
     mShaderProgram->setUniformsForBuiltins();
-    
+    Director::getInstance()->setDepthTest(true);
     
     mat4 rotation(m_animation.Current.ToMatrix());
     mat4 translation = mat4::Translate(0, 0, -0.5);
     
     // Set the model-view matrix.
     GLint modelviewUniform = glGetUniformLocation(mShaderProgram->getProgram(), "modelView");
-    mat4 modelviewMatrix = rotation * translation;
+    mat4 modelviewMatrix = translation * rotation;
     glUniformMatrix4fv(modelviewUniform, 1, 0, modelviewMatrix.Pointer());
     
 
