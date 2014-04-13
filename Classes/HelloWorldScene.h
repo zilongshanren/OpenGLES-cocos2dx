@@ -15,13 +15,7 @@ struct Vertex {
     vec4 Color;
 };
 
-struct MyAnimation {
-    Quaternion Start;
-    Quaternion End;
-    Quaternion Current;
-    float Elapsed;
-    float Duration;
-};
+
 
 class HelloWorld : public cocos2d::Layer
 {
@@ -37,6 +31,11 @@ public:
     //we call our actual opengl commands here
     void onDraw();
     
+    virtual bool onTouchBegan(Touch *touch, Event *unused_event);
+    virtual void onTouchMoved(Touch *touch, Event *unused_event);
+    virtual void onTouchEnded(Touch *touch, Event *unused_event);
+    virtual void onTouchCancelled(Touch *touch, Event *unused_event);
+    
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);
     
@@ -49,9 +48,12 @@ private:
     GLuint _textureID;
     Texture2D *_texture;
     
+    float _rotateAngle;
+    float _scale;
+    ivec2 _pivotPosition;
+    
     vector<Vertex> m_cone;
     vector<Vertex> m_disk;
-    MyAnimation m_animation;
 };
 
 #endif // __HELLOWORLD_SCENE_H__

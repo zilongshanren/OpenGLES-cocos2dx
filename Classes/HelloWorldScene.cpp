@@ -118,16 +118,19 @@ bool HelloWorld::init()
 
     //maybe I should call delete when the HelloWorldScene get destoryed
 
+    //init the member function
+    _pivotPosition = ivec2(winSize.width/2, winSize.height/2);
+    _scale = 1.0f;
+    _rotateAngle = 0.0f;
+    
+    this->setTouchEnabled(true);
+    this->setTouchMode(Touch::DispatchMode::ONE_BY_ONE);
+    
     
     mColorLocation = glGetUniformLocation( mShaderProgram->getProgram(), "a_color");
     
     //how to map texture HelloWorld.png to my triangles
     _textureID =  Director::getInstance()->getTextureCache()->addImage("guanyu1.png")->getName();
-
-    
-    m_animation.Elapsed = 0;
-    m_animation.Start = m_animation.Current = m_animation.End;
-    m_animation.End = Quaternion::CreateFromAxisAngle(vec3(1.0,1.0,0), 3.14 / 2);
 
     
     glGenBuffers(1, &vertexBuffer);
@@ -177,23 +180,14 @@ void HelloWorld::onDraw()
     mShaderProgram->setUniformsForBuiltins();
     Director::getInstance()->setDepthTest(true);
     
-    mat4 rotation(m_animation.Current.ToMatrix());
-    mat4 translation = mat4::Translate(0, 0, -0.5);
+    GLuint modelViewLocation = mShaderProgram->getUniformLocation("modelView");
+    kmGLMatrixMode(KM_GL_MODELVIEW);
+    kmGLRotatef(_rotateAngle, 0, 0, 1);
+    kmGLScalef(_scale, _scale, _scale);
+    kmGLGetMatrix(KM_GL_MODELVIEW, &_modelViewMV);
+    mShaderProgram->setUniformLocationWithMatrix4fv(modelViewLocation, _modelViewMV.mat, 1);
     
-    // Set the model-view matrix.
-    GLint modelviewUniform = glGetUniformLocation(mShaderProgram->getProgram(), "modelView");
-    mat4 modelviewMatrix = translation * rotation;
-    glUniformMatrix4fv(modelviewUniform, 1, 0, modelviewMatrix.Pointer());
-    
-
- 
-    static float timeStep = 1.0 / 60.0f;
-    m_animation.Elapsed += timeStep;
- 
-    float mu = m_animation.Elapsed / 0.25f;
-    m_animation.Current = m_animation.Start.Slerp(mu, m_animation.End);
-
-           //set color for each vertex  note:the color value is between 0-1
+    //set color for each vertex  note:the color value is between 0-1
 
 //    mShaderProgram->setUniformLocationWith4f(mColorLocation, 0.5, 0.5, 0.5, 1);
 //    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -234,4 +228,37 @@ void HelloWorld::onDraw()
 
 }
 
+
+bool HelloWorld::onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *unused_event)
+{
+    _scale = 1.5;
+    return true;
+}
+
+void HelloWorld::onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *unused_event)
+{
+    
+    Point location = touch->getLocationInView();
+    vec2 direction = vec2(vec2(location.x, location.y) - _pivotPosition).Normalized();
+    // Flip the y-axis because pixel coords increase toward the bottom.
+    
+    direction.y = -direction.y;
+    
+    _rotateAngle = std::acos(direction.y) * 180.0f / 3.14159f;
+    
+    if (direction.x > 0){
+        _rotateAngle = -_rotateAngle;
+    }
+    CCLOG("rotate = %f", _rotateAngle);
+}
+
+void HelloWorld::onTouchCancelled(cocos2d::Touch *touch, cocos2d::Event *unused_event)
+{
+    
+}
+
+void HelloWorld::onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *unused_event)
+{
+    _scale = 1.0f;
+}
 
