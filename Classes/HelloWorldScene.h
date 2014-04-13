@@ -52,8 +52,10 @@ private:
     float _scale;
     ivec2 _pivotPosition;
     
-    vector<Vertex> m_cone;
-    vector<Vertex> m_disk;
+    vector<Vertex> m_coneVertices;
+    vector<GLubyte> m_coneIndices;
+    GLuint m_bodyIndexCount;
+    GLuint m_diskIndexCount;
 };
 
 #endif // __HELLOWORLD_SCENE_H__

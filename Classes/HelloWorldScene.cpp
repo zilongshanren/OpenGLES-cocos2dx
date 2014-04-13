@@ -28,55 +28,49 @@ void HelloWorld::initCone()
     const float coneRadius = 0.5f;
     const float coneHeight = 1.866f;
     const int coneSlices = 40;
+    const float dtheta = TwoPi / coneSlices;
+    const int vertexCount = coneSlices * 2 + 1;
     
-    {
-        // Allocate space for the cone vertices.
-        m_cone.resize((coneSlices + 1) * 2);
-        
-        // Initialize the vertices of the triangle strip.
-        vector<Vertex>::iterator vertex = m_cone.begin();
-        const float dtheta = TwoPi / coneSlices;
-        for (float theta = 0; vertex != m_cone.end(); theta += dtheta) {
-            
-            // Grayscale gradient
-            float brightness = abs(sin(theta));
-            vec4 color(brightness, brightness, brightness, 1);
-            
-            // Apex vertex
-            vertex->Position = vec3(0, 1, 0);
-            vertex->Color = color;
-            vertex++;
-            
-            // Rim vertex
-            vertex->Position.x = coneRadius * cos(theta);
-            vertex->Position.y = 1 - coneHeight;
-            vertex->Position.z = coneRadius * sin(theta);
-            vertex->Color = color;
-            vertex++;
-        }
-    }
-    
-    {
-        // Allocate space for the disk vertices.
-        m_disk.resize(coneSlices + 2);
-        
-        // Initialize the center vertex of the triangle fan.
-        vector<Vertex>::iterator vertex = m_disk.begin();
-        vertex->Color = vec4(0.75, 0.75, 0.75, 1);
-        vertex->Position.x = 0;
-        vertex->Position.y = 1 - coneHeight;
-        vertex->Position.z = 0;
+    m_coneVertices.resize(vertexCount);
+    vector<Vertex>::iterator vertex = m_coneVertices.begin();
+    // Cone's body
+    for (float theta = 0; vertex != m_coneVertices.end() - 1; theta += dtheta) {
+        // Grayscale gradient
+        float brightness = abs(sin(theta));
+        vec4 color(brightness, brightness, brightness, 1);
+        // Apex vertex
+        vertex->Position = vec3(0, 1, 0);
+        vertex->Color = color;
         vertex++;
-        
-        // Initialize the rim vertices of the triangle fan.
-        const float dtheta = TwoPi / coneSlices;
-        for (float theta = 0; vertex != m_disk.end(); theta += dtheta) {
-            vertex->Color = vec4(0.75, 0.75, 0.75, 1);
-            vertex->Position.x = coneRadius * cos(theta);
-            vertex->Position.y = 1 - coneHeight;
-            vertex->Position.z = coneRadius * sin(theta);
-            vertex++;
-        }
+        // Rim vertex
+        vertex->Position.x = coneRadius * cos(theta);
+        vertex->Position.y = 1 - coneHeight;
+        vertex->Position.z = coneRadius * sin(theta);
+        vertex->Color = color;
+        vertex++;
+    }
+    // Disk center
+    vertex->Position = vec3(0, 1 - coneHeight, 0);
+    vertex->Color = vec4(1, 1, 1, 1);
+    
+    
+    m_bodyIndexCount = coneSlices * 3;
+    m_diskIndexCount = coneSlices * 3;
+    m_coneIndices.resize(m_bodyIndexCount + m_diskIndexCount);
+    
+    vector<GLubyte>::iterator index = m_coneIndices.begin();
+    // Body triangles
+    for (int i = 0; i < coneSlices * 2; i += 2) {
+        *index++ = i;
+        *index++ = (i + 1) % (2 * coneSlices);
+        *index++ = (i + 3) % (2 * coneSlices);
+    }
+    // Disk triangles
+    const int diskCenterIndex = vertexCount - 1;
+    for (int i = 1; i < coneSlices * 2 + 1; i += 2) {
+        *index++ = diskCenterIndex;
+        *index++ = i;
+        *index++ = (i + 2) % (2 * coneSlices);
     }
 
 }
@@ -84,6 +78,9 @@ void HelloWorld::initCone()
 // on "init" you need to initialize your instance
 bool HelloWorld::init()
 {
+    
+//    this->initCone();
+
     //////////////////////////////
     // 1. super init first
     if ( !Layer::init() )
@@ -97,7 +94,6 @@ bool HelloWorld::init()
     label->setVisible(false);
     this->addChild(label);
 
-    this->initCone();
     
     //方法1：使用有mvp的shader  注意坐标的变化
 //    mShaderProgram = ShaderCache::getInstance()->getProgram(GLProgram::SHADER_NAME_POSITION_U_COLOR);
@@ -133,11 +129,78 @@ bool HelloWorld::init()
     _textureID =  Director::getInstance()->getTextureCache()->addImage("guanyu1.png")->getName();
 
     
+    const float coneRadius = 0.5f;
+    const float coneHeight = 1.866f;
+    const int coneSlices = 40;
+    const float dtheta = TwoPi / coneSlices;
+    const int vertexCount = coneSlices * 2 + 1;
+    const int diskCenterIndex = vertexCount - 1;
+    
+    m_bodyIndexCount = coneSlices * 3;
+    m_diskIndexCount = coneSlices * 3;
+    
+    vector<Vertex> coneVertices(vertexCount);
+    vector<Vertex>::iterator vertex = coneVertices.begin();
+    
+    // Cone's body
+    for (float theta = 0; vertex != coneVertices.end() - 1; theta += dtheta) {
+        
+        // Grayscale gradient
+        float brightness = abs(sin(theta));
+        vec4 color(brightness, brightness, brightness, 1);
+        
+        // Apex vertex
+        vertex->Position = vec3(0, 1, 0);
+        vertex->Color = color;
+        vertex++;
+        
+        // Rim vertex
+        vertex->Position.x = coneRadius * cos(theta);
+        vertex->Position.y = 1 - coneHeight;
+        vertex->Position.z = coneRadius * sin(theta);
+        vertex->Color = color;
+        vertex++;
+    }
+    
+    // Disk center
+    vertex->Position = vec3(0, 1 - coneHeight, 0);
+    vertex->Color = vec4(1, 1, 1, 1);
+    
+    // Create the VBO for the vertices.
     glGenBuffers(1, &vertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER,
+                 coneVertices.size() * sizeof(coneVertices[0]),
+                 &coneVertices[0],
+                 GL_STATIC_DRAW);
     
+    vector<GLubyte> coneIndices(m_bodyIndexCount + m_diskIndexCount);
+    vector<GLubyte>::iterator index = coneIndices.begin();
+    
+    // Body triangles
+    for (int i = 0; i < coneSlices * 2; i += 2) {
+        *index++ = i;
+        *index++ = (i + 1) % (2 * coneSlices);
+        *index++ = (i + 3) % (2 * coneSlices);
+    }
+    
+    // Disk triangles
+    for (int i = 1; i < coneSlices * 2 + 1; i += 2) {
+        *index++ = diskCenterIndex;
+        *index++ = i;
+        *index++ = (i + 2) % (2 * coneSlices);
+    }
+    
+    // Create the VBO for the indices.
     glGenBuffers(1, &indexBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                 coneIndices.size() * sizeof(coneIndices[0]),
+                 &coneIndices[0],
+                 GL_STATIC_DRAW);
+    
+ 
+    
     
     return true;
 }
@@ -178,13 +241,13 @@ void HelloWorld::onDraw()
     
     mShaderProgram->use();
     mShaderProgram->setUniformsForBuiltins();
-    Director::getInstance()->setDepthTest(true);
+//    Director::getInstance()->setDepthTest(true);
     
     GLuint modelViewLocation = mShaderProgram->getUniformLocation("modelView");
     kmGLMatrixMode(KM_GL_MODELVIEW);
     kmGLRotatef(_rotateAngle, 0, 0, 1);
     kmGLScalef(_scale, _scale, _scale);
-    kmGLGetMatrix(KM_GL_MODELVIEW, &_modelViewMV);
+    kmGLGetMatrix(KM_GL_MODELVIEW, &_modelViewMV); // we must call kmGLGetMatrix to retrieve the matrix
     mShaderProgram->setUniformLocationWithMatrix4fv(modelViewLocation, _modelViewMV.mat, 1);
     
     //set color for each vertex  note:the color value is between 0-1
@@ -192,32 +255,28 @@ void HelloWorld::onDraw()
 //    mShaderProgram->setUniformLocationWith4f(mColorLocation, 0.5, 0.5, 0.5, 1);
 //    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 //    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex), &m_cone[0], GL_STATIC_DRAW);
-   
+    GLsizei stride = sizeof(Vertex);
+//    const GLvoid* pCoords = &m_coneVertices[0].Position.x;
+//    const GLvoid* pColors = &m_coneVertices[0].Color.x;
+    GL::enableVertexAttribs( GL::VERTEX_ATTRIB_FLAG_POSITION | GL::VERTEX_ATTRIB_FLAG_COLOR);
+
     
-    GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_COLOR | GL::VERTEX_ATTRIB_FLAG_POSITION);
+
+    glVertexAttribPointer(GL::VERTEX_ATTRIB_FLAG_POSITION, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)0);
+    glVertexAttribPointer(GL::VERTEX_ATTRIB_FLAG_COLOR, 4, GL_FLOAT, GL_FALSE, stride, (GLvoid*)sizeof(vec3));
     
-    // Draw the cone.
-    {
-        GLsizei stride = sizeof(Vertex);
-        const GLvoid* pCoords = &m_cone[0].Position.x;
-        const GLvoid* pColors = &m_cone[0].Color.x;
-        glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, stride, pCoords);
-        glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 4, GL_FLOAT, GL_FALSE, stride, pColors);
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, m_cone.size());
-    }
+//    const GLvoid* bodyIndices = 0;
+    const GLvoid* diskIndices = &m_bodyIndexCount;
     
-    // Draw the disk that caps off the base of the cone.
-    {
-        GLsizei stride = sizeof(Vertex);
-        const GLvoid* pCoords = &m_disk[0].Position.x;
-        const GLvoid* pColors = &m_disk[0].Color.x;
-        glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_POSITION, 3, GL_FLOAT, GL_FALSE, stride, pCoords);
-        glVertexAttribPointer(GLProgram::VERTEX_ATTRIB_COLOR, 4, GL_FLOAT, GL_FALSE, stride, pColors);
-        glDrawArrays(GL_TRIANGLE_FAN, 0, m_disk.size());
-    }
+    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+
+    glDrawElements(GL_TRIANGLES, m_bodyIndexCount, GL_UNSIGNED_BYTE, (GLvoid*)0);
+    
+    glDrawElements(GL_TRIANGLES, m_diskIndexCount, GL_UNSIGNED_BYTE, diskIndices);
     
     
-    CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(2,m_cone.size() + m_disk.size());
+    CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1,m_diskIndexCount + m_bodyIndexCount);
     
     CHECK_GL_ERROR_DEBUG();
     
