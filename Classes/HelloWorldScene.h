@@ -6,6 +6,7 @@
 
 #include "Quaternion.hpp"
 #include "Vector.hpp"
+#include "Interfaces.hpp"
 
 using namespace std;
 using namespace cocos2d;
@@ -13,6 +14,17 @@ using namespace cocos2d;
 struct Vertex {
     vec3 Position;
     vec4 Color;
+};
+
+static const int SurfaceCount = 6;
+static const int ButtonCount = SurfaceCount - 1;
+
+struct TXAnimation {
+    bool Active;
+    float Elapsed;
+    float Duration;
+    Visual StartingVisuals[SurfaceCount];
+    Visual EndingVisuals[SurfaceCount];
 };
 
 
@@ -25,7 +37,7 @@ public:
 
     // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
     virtual bool init();
-    void initCone();
+    void initialize();
     
     virtual void draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated) override;
     //we call our actual opengl commands here
@@ -49,14 +61,26 @@ private:
     GLuint _textureID;
     Texture2D *_texture;
     
-    float _rotateAngle;
-    float _scale;
-    ivec2 _pivotPosition;
     
-    vector<Vertex> m_coneVertices;
-    vector<GLubyte> m_coneIndices;
-    GLuint m_bodyIndexCount;
-    GLuint m_diskIndexCount;
+    //add wirefame
+    void PopulateVisuals(Visual* visuals) const;
+    int MapToButton(ivec2 touchpoint) const;
+    vec3 MapToSphere(ivec2 touchpoint) const;
+    
+    
+    float m_trackballRadius;
+    ivec2 m_screenSize;
+    ivec2 m_centerPoint;
+    ivec2 m_fingerStart;
+    bool m_spinning;
+    Quaternion m_orientation;
+    Quaternion m_previousOrientation;
+    int m_currentSurface;
+    ivec2 m_buttonSize;
+    int m_pressedButton;
+    int m_buttonSurfaces[ButtonCount];
+    TXAnimation m_animation;
+    IRenderingEngine* m_renderingEngine;
 };
 
 #endif // __HELLOWORLD_SCENE_H__

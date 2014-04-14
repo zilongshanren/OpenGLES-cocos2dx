@@ -1,12 +1,6 @@
 #include "HelloWorldScene.h"
-
+#include "ParametricEquations.hpp"
 USING_NS_CC;
-
-
-
-GLuint vertexBuffer;
-GLuint indexBuffer;
-
 
 Scene* HelloWorld::createScene()
 {
@@ -23,57 +17,27 @@ Scene* HelloWorld::createScene()
     return scene;
 }
 
-void HelloWorld::initCone()
+void HelloWorld::initialize()
 {
-    const float coneRadius = 0.5f;
-    const float coneHeight = 1.866f;
-    const int coneSlices = 40;
-    const float dtheta = TwoPi / coneSlices;
-    const int vertexCount = coneSlices * 2 + 1;
-    
-    m_coneVertices.resize(vertexCount);
-    vector<Vertex>::iterator vertex = m_coneVertices.begin();
-    // Cone's body
-    for (float theta = 0; vertex != m_coneVertices.end() - 1; theta += dtheta) {
-        // Grayscale gradient
-        float brightness = abs(sin(theta));
-        vec4 color(brightness, brightness, brightness, 1);
-        // Apex vertex
-        vertex->Position = vec3(0, 1, 0);
-        vertex->Color = color;
-        vertex++;
-        // Rim vertex
-        vertex->Position.x = coneRadius * cos(theta);
-        vertex->Position.y = 1 - coneHeight;
-        vertex->Position.z = coneRadius * sin(theta);
-        vertex->Color = color;
-        vertex++;
+    auto width = Director::getInstance()->getVisibleSize().width;
+    auto height = Director::getInstance()->getVisibleSize().height;
+    m_trackballRadius = width / 3;
+    m_screenSize = ivec2(width, height);
+    m_centerPoint = m_screenSize / 2;
+    vector<ISurface*> surfaces(SurfaceCount);
+    surfaces[0] = new Cone(3, 1);
+    surfaces[1] = new Sphere(1.4f);
+    surfaces[2] = new Torus(1.4, 0.3);
+    surfaces[3] = new TrefoilKnot(1.8f);
+    surfaces[4] = new KleinBottle(0.2f);
+    surfaces[5] = new MobiusStrip(1);
+    m_renderingEngine->Initialize(surfaces);
+    for (int i = 0; i < SurfaceCount; i++)
+    {
+        delete surfaces[i];
     }
-    // Disk center
-    vertex->Position = vec3(0, 1 - coneHeight, 0);
-    vertex->Color = vec4(1, 1, 1, 1);
-    
-    
-    m_bodyIndexCount = coneSlices * 3;
-    m_diskIndexCount = coneSlices * 3;
-    m_coneIndices.resize(m_bodyIndexCount + m_diskIndexCount);
-    
-    vector<GLubyte>::iterator index = m_coneIndices.begin();
-    // Body triangles
-    for (int i = 0; i < coneSlices * 2; i += 2) {
-        *index++ = i;
-        *index++ = (i + 1) % (2 * coneSlices);
-        *index++ = (i + 3) % (2 * coneSlices);
-    }
-    // Disk triangles
-    const int diskCenterIndex = vertexCount - 1;
-    for (int i = 1; i < coneSlices * 2 + 1; i += 2) {
-        *index++ = diskCenterIndex;
-        *index++ = i;
-        *index++ = (i + 2) % (2 * coneSlices);
-    }
-
 }
+
 
 // on "init" you need to initialize your instance
 bool HelloWorld::init()
@@ -114,43 +78,25 @@ bool HelloWorld::init()
     //maybe I should call delete when the HelloWorldScene get destoryed
 
     //init the member function
-    _pivotPosition = ivec2(winSize.width/2, winSize.height/2);
-    _scale = 1.0f;
-    _rotateAngle = 0.0f;
     
     this->setTouchEnabled(true);
     this->setTouchMode(Touch::DispatchMode::ONE_BY_ONE);
-    
-    
-    mColorLocation = glGetAttribLocation( mShaderProgram->getProgram(), "a_color");
-    mPositionLocation = glGetAttribLocation(mShaderProgram->getProgram(), "a_position");
+
     
     //how to map texture HelloWorld.png to my triangles
     _textureID =  Director::getInstance()->getTextureCache()->addImage("guanyu1.png")->getName();
 
+    //we must specify the renderingEngine
     
-    this->initCone();
+    this->initialize();
 
-    
-    // Create the VBO for the vertices.
-    glGenBuffers(1, &vertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER,
-                 m_coneVertices.size() * sizeof(m_coneVertices[0]),
-                 &m_coneVertices[0],
-                 GL_STATIC_DRAW);
-    
-  
-    // Create the VBO for the indices.
-    glGenBuffers(1, &indexBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                 m_coneIndices.size() * sizeof(m_coneIndices[0]),
-                 &m_coneIndices[0],
-                 GL_STATIC_DRAW);
     
  
     
+    Visual visual;
+    visual.Color = m_spinning ? vec3(1, 1, 1) : vec3(0, 1, 1); visual.LowerLeft = ivec2(0, 48);
+    visual.ViewportSize = ivec2(320, 432);
+    visual.Orientation = m_orientation;
     
     return true;
 }
@@ -191,52 +137,9 @@ void HelloWorld::onDraw()
     
     mShaderProgram->use();
     mShaderProgram->setUniformsForBuiltins();
-//    Director::getInstance()->setDepthTest(true);
     
-    GLuint modelViewLocation = mShaderProgram->getUniformLocation("modelView");
-    kmGLMatrixMode(KM_GL_MODELVIEW);
-    kmGLRotatef(_rotateAngle, 0, 0, 1);
-    kmGLScalef(_scale, _scale, _scale);
-    kmGLGetMatrix(KM_GL_MODELVIEW, &_modelViewMV); // we must call kmGLGetMatrix to retrieve the matrix
-    mShaderProgram->setUniformLocationWithMatrix4fv(modelViewLocation, _modelViewMV.mat, 1);
-    
-    //set color for each vertex  note:the color value is between 0-1
+    //add your own draw code here
 
-//    mShaderProgram->setUniformLocationWith4f(mColorLocation, 0.5, 0.5, 0.5, 1);
-//    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-//    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex), &m_cone[0], GL_STATIC_DRAW);
-    GLsizei stride = sizeof(Vertex);
-//    const GLvoid* pCoords = &m_coneVertices[0].Position.x;
-//    const GLvoid* pColors = &m_coneVertices[0].Color.x;
-    
-
-//    glEnableVertexAttribArray(mPositionLocation);
-//    glEnableVertexAttribArray(mColorLocation);
-//    
-
-    GL::enableVertexAttribs(GL::VERTEX_ATTRIB_FLAG_POSITION | GL::VERTEX_ATTRIB_FLAG_COLOR);
-    //使用vbo的话，一定要先enable，然后再调用bind,另外，一定要使用vbo
-    //如果不使用vbo的话，那么glVertexAttribPointer接的是内存地址，而不是偏移。
-    //不使用vbo是直接从cpu传数据，使用vbo是先把数据传给gpu，然后从gpu里面去取
-    glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-
-    
-    glVertexAttribPointer(mPositionLocation, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)0);
-    glVertexAttribPointer(mColorLocation, 4, GL_FLOAT, GL_FALSE, stride, (GLvoid*)sizeof(vec3));
-    
-    const GLvoid* bodyIndices = (GLvoid*)0;
-    //千万不能写成
-    //    const GLvoid* diskIndices = &m_bodyIndexCount;
-    const GLvoid* diskIndices = (GLvoid*)m_bodyIndexCount;
-    
-    
-    glDrawElements(GL_TRIANGLES, m_bodyIndexCount, GL_UNSIGNED_BYTE, bodyIndices);
-    
-    glDrawElements(GL_TRIANGLES, m_diskIndexCount, GL_UNSIGNED_BYTE, diskIndices);
-    
-    
-    CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1,m_diskIndexCount + m_bodyIndexCount);
     
     CHECK_GL_ERROR_DEBUG();
     
@@ -250,25 +153,23 @@ void HelloWorld::onDraw()
 
 bool HelloWorld::onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *unused_event)
 {
-    _scale = 1.5;
+    auto location = touch->getLocationInView();
+    m_fingerStart = ivec2(location.x, location.y);
+    m_previousOrientation = m_orientation;
+    m_spinning = true;
+    
     return true;
 }
 
 void HelloWorld::onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *unused_event)
 {
-    
-    Point location = touch->getLocationInView();
-    vec2 direction = vec2(vec2(location.x, location.y) - _pivotPosition).Normalized();
-    // Flip the y-axis because pixel coords increase toward the bottom.
-    
-    direction.y = -direction.y;
-    
-    _rotateAngle = std::acos(direction.y) * 180.0f / 3.14159f;
-    
-    if (direction.x > 0){
-        _rotateAngle = -_rotateAngle;
+    if (m_spinning) {
+        vec3 start = MapToSphere(m_fingerStart);
+        auto location = touch->getLocationInView();
+        vec3 end = MapToSphere(ivec2(location.x, location.y));
+        Quaternion delta = Quaternion::CreateFromVectors(start, end);
+        m_orientation = delta.Rotated(m_previousOrientation);
     }
-    CCLOG("rotate = %f", _rotateAngle);
 }
 
 void HelloWorld::onTouchCancelled(cocos2d::Touch *touch, cocos2d::Event *unused_event)
@@ -278,6 +179,21 @@ void HelloWorld::onTouchCancelled(cocos2d::Touch *touch, cocos2d::Event *unused_
 
 void HelloWorld::onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *unused_event)
 {
-    _scale = 1.0f;
+    m_spinning = false;
 }
 
+
+int HelloWorld::MapToButton(ivec2 touchpoint) const
+{
+    return 0;
+}
+
+vec3 HelloWorld::MapToSphere(ivec2 touchpoint) const
+{
+    return vec3(0,0,0);
+}
+
+void HelloWorld::PopulateVisuals(Visual *visuals)const
+{
+    
+}

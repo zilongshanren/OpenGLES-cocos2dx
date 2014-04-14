@@ -26,6 +26,7 @@
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
 		2905E91D18F7F248004A00D6 /* guanyu1.png in Resources */ = {isa = PBXBuildFile; fileRef = 2905E91C18F7F248004A00D6 /* guanyu1.png */; };
+		29BE6BAE18FC048900222CA0 /* ParametricSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 29BE6BAC18FC048900222CA0 /* ParametricSurface.cpp */; };
 		29BF390918F41598008A6B6A /* myshader.vert in Resources */ = {isa = PBXBuildFile; fileRef = 29BF390818F41598008A6B6A /* myshader.vert */; };
 		29BF390D18F415AA008A6B6A /* myshader.frag in Resources */ = {isa = PBXBuildFile; fileRef = 29BF390C18F415AA008A6B6A /* myshader.frag */; };
 		503AE0F817EB97AB00D1A890 /* Icon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 503AE0F617EB97AB00D1A890 /* Icon.icns */; };
@@ -235,6 +236,10 @@
 		2905E93018F93686004A00D6 /* Matrix.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Matrix.hpp; sourceTree = "<group>"; };
 		2905E93118F93686004A00D6 /* Quaternion.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Quaternion.hpp; sourceTree = "<group>"; };
 		2905E93218F93686004A00D6 /* Vector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Vector.hpp; sourceTree = "<group>"; };
+		29BE6BAA18FC048900222CA0 /* Interfaces.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Interfaces.hpp; path = ../Classes/Interfaces.hpp; sourceTree = "<group>"; };
+		29BE6BAB18FC048900222CA0 /* ParametricEquations.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ParametricEquations.hpp; path = ../Classes/ParametricEquations.hpp; sourceTree = "<group>"; };
+		29BE6BAC18FC048900222CA0 /* ParametricSurface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParametricSurface.cpp; path = ../Classes/ParametricSurface.cpp; sourceTree = "<group>"; };
+		29BE6BAD18FC048900222CA0 /* ParametricSurface.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ParametricSurface.hpp; path = ../Classes/ParametricSurface.hpp; sourceTree = "<group>"; };
 		29BF390818F41598008A6B6A /* myshader.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = myshader.vert; sourceTree = "<group>"; };
 		29BF390C18F415AA008A6B6A /* myshader.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = myshader.frag; sourceTree = "<group>"; };
 		503AE0F617EB97AB00D1A890 /* Icon.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; path = Icon.icns; sourceTree = "<group>"; };
@@ -345,6 +350,10 @@
 		15AA9C4015B7EC450033D6C2 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				29BE6BAA18FC048900222CA0 /* Interfaces.hpp */,
+				29BE6BAB18FC048900222CA0 /* ParametricEquations.hpp */,
+				29BE6BAC18FC048900222CA0 /* ParametricSurface.cpp */,
+				29BE6BAD18FC048900222CA0 /* ParametricSurface.hpp */,
 				2905E93018F93686004A00D6 /* Matrix.hpp */,
 				2905E93118F93686004A00D6 /* Quaternion.hpp */,
 				2905E93218F93686004A00D6 /* Vector.hpp */,
@@ -686,6 +695,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				503AE10017EB989F00D1A890 /* AppController.mm in Sources */,
+				29BE6BAE18FC048900222CA0 /* ParametricSurface.cpp in Sources */,
 				503AE10217EB989F00D1A890 /* RootViewController.mm in Sources */,
 				1AFAF8B716D35DE700DB1158 /* AppDelegate.cpp in Sources */,
 				503AE10117EB989F00D1A890 /* main.m in Sources */,
