@@ -81,7 +81,7 @@ private:
     int m_pressedButton;
     int m_buttonSurfaces[ButtonCount];
     TXAnimation m_animation;
-    IRenderingEngine* m_renderingEngine;
+    vector<ISurface*> m_surfaces;
 };
 
 #endif // __HELLOWORLD_SCENE_H__

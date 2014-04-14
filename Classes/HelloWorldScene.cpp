@@ -24,6 +24,7 @@ void HelloWorld::initialize()
     m_trackballRadius = width / 3;
     m_screenSize = ivec2(width, height);
     m_centerPoint = m_screenSize / 2;
+    
     vector<ISurface*> surfaces(SurfaceCount);
     surfaces[0] = new Cone(3, 1);
     surfaces[1] = new Sphere(1.4f);
@@ -31,11 +32,7 @@ void HelloWorld::initialize()
     surfaces[3] = new TrefoilKnot(1.8f);
     surfaces[4] = new KleinBottle(0.2f);
     surfaces[5] = new MobiusStrip(1);
-    m_renderingEngine->Initialize(surfaces);
-    for (int i = 0; i < SurfaceCount; i++)
-    {
-        delete surfaces[i];
-    }
+    m_surfaces = surfaces;
 }
 
 
@@ -43,7 +40,6 @@ void HelloWorld::initialize()
 bool HelloWorld::init()
 {
     
-
     //////////////////////////////
     // 1. super init first
     if ( !Layer::init() )
@@ -145,14 +141,28 @@ void HelloWorld::onDraw()
     mShaderProgram->setUniformsForBuiltins();
     
     //add your own draw code here
-    Visual visual;
-    visual.Color = m_spinning ? vec3(1, 1, 1) : vec3(0, 1, 1); visual.LowerLeft = ivec2(0, 48);
-    visual.ViewportSize = ivec2(320, 432);
-    visual.Orientation = m_orientation;
-
-    //rendering
+    vector<Visual> visuals(SurfaceCount);
     
-
+    if (!m_animation.Active) {
+        PopulateVisuals(&visuals[0]);
+    } else {
+        float t = m_animation.Elapsed / m_animation.Duration;
+        
+        for (int i = 0; i < SurfaceCount; i++) {
+            
+            const Visual& start = m_animation.StartingVisuals[i];
+            const Visual& end = m_animation.EndingVisuals[i];
+            Visual& tweened = visuals[i];
+            
+            tweened.Color = start.Color.Lerp(t, end.Color);
+            tweened.LowerLeft = start.LowerLeft.Lerp(t, end.LowerLeft);
+            tweened.ViewportSize = start.ViewportSize.Lerp(t, end.ViewportSize);
+            tweened.Orientation = start.Orientation.Slerp(t, end.Orientation);
+        }
+    }
+    
+    //drawing
+    
     
     CHECK_GL_ERROR_DEBUG();
     
