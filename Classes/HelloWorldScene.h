@@ -89,12 +89,9 @@ private:
     int m_pressedButton;
     int m_buttonSurfaces[ButtonCount];
     TXAnimation m_animation;
-    vector<ISurface*> m_surfaces;
     
     
     vector<Drawable> m_drawables;
-    GLuint m_colorRenderbuffer;
-    GLuint m_depthRenderbuffer;
     mat4 m_translation;
 };
 

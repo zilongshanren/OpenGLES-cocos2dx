@@ -43,9 +43,7 @@ void HelloWorld::initialize()
     surfaces[2] = new Torus(1.4, 0.3);
     surfaces[3] = new TrefoilKnot(1.8f);
     surfaces[4] = new KleinBottle(0.2f);
-    surfaces[5] = new MobiusStrip(1);
-    m_surfaces = surfaces;
-    
+    surfaces[5] = new MobiusStrip(1);    
     
     //init VBO
     vector<ISurface*>::const_iterator surface;
@@ -104,6 +102,7 @@ void HelloWorld::initialize()
     for (int i = 0; i < SurfaceCount; i++)
         delete surfaces[i];
     
+    m_translation = mat4::Translate(0, 0, -7);
 }
 
 
