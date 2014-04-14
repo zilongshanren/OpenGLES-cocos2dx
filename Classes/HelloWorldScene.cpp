@@ -232,6 +232,7 @@ void HelloWorld::onDraw()
     }
     
     //drawing
+    this->rendering(visuals);
     
     
     CHECK_GL_ERROR_DEBUG();
@@ -243,26 +244,59 @@ void HelloWorld::onDraw()
 
 }
 
+void HelloWorld::rendering(const vector<Visual>& visuals)
+{
+    vector<Visual>::const_iterator visual = visuals.begin();
+    for (int visualIndex = 0; visual != visuals.end(); ++visual, ++visualIndex) {
+
+        // Set up the vertex buffer.
+        int stride = 2 * sizeof(vec3);
+        const Drawable& drawable = m_drawables[visualIndex];
+        glBindBuffer(GL_ARRAY_BUFFER, drawable.VertexBuffer);
+        glVertexAttribPointer(GL::VERTEX_ATTRIB_FLAG_POSITION, 3, GL_FLOAT, GL_FALSE, stride, 0);
+        
+        
+        // Draw the lit triangles.
+        glPolygonOffset(4, 8);
+        // glPolygonOffset(1, 1000); // Use this for 1st and 2nd gen devices
+        glEnable(GL_POLYGON_OFFSET_FILL);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawable.TriangleIndexBuffer);
+        glDrawElements(GL_TRIANGLES, drawable.TriangleIndexCount, GL_UNSIGNED_SHORT, 0);
+        glDisable(GL_POLYGON_OFFSET_FILL);
+        
+        // Draw the black lines.
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawable.LineIndexBuffer);
+        glDrawElements(GL_LINES, drawable.TriangleIndexCount, GL_UNSIGNED_SHORT, 0);
+    }
+}
+
 
 bool HelloWorld::onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *unused_event)
 {
     auto location = touch->getLocationInView();
+    
     m_fingerStart = ivec2(location.x, location.y);
     m_previousOrientation = m_orientation;
-    m_spinning = true;
+    m_pressedButton = MapToButton(ivec2(location.x, location.y));
+    if (m_pressedButton == -1)
+        m_spinning = true;
     
     return true;
 }
 
 void HelloWorld::onTouchMoved(cocos2d::Touch *touch, cocos2d::Event *unused_event)
 {
+    auto location = touch->getLocationInView();
+
     if (m_spinning) {
         vec3 start = MapToSphere(m_fingerStart);
-        auto location = touch->getLocationInView();
         vec3 end = MapToSphere(ivec2(location.x, location.y));
         Quaternion delta = Quaternion::CreateFromVectors(start, end);
         m_orientation = delta.Rotated(m_previousOrientation);
     }
+    
+    if (m_pressedButton != -1 && m_pressedButton != MapToButton(ivec2(location.x, location.y)))
+        m_pressedButton = -1;
 }
 
 void HelloWorld::onTouchCancelled(cocos2d::Touch *touch, cocos2d::Event *unused_event)
@@ -273,6 +307,20 @@ void HelloWorld::onTouchCancelled(cocos2d::Touch *touch, cocos2d::Event *unused_
 void HelloWorld::onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *unused_event)
 {
     m_spinning = false;
+    auto location = touch->getLocationInView();
+    if (m_pressedButton != -1 && m_pressedButton == MapToButton(ivec2(location.x, location.y)) &&
+        !m_animation.Active)
+    {
+        m_animation.Active = true;
+        m_animation.Elapsed = 0;
+        m_animation.Duration = 0.25f;
+        
+        PopulateVisuals(&m_animation.StartingVisuals[0]);
+        swap(m_buttonSurfaces[m_pressedButton], m_currentSurface);
+        PopulateVisuals(&m_animation.EndingVisuals[0]);
+    }
+    
+    m_pressedButton = -1;
 }
 
 

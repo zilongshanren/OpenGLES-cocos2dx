@@ -57,6 +57,8 @@ public:
     virtual void onTouchEnded(Touch *touch, Event *unused_event);
     virtual void onTouchCancelled(Touch *touch, Event *unused_event);
     
+    void rendering(const vector<Visual>& visuals);
+    
     // implement the "static create()" method manually
     CREATE_FUNC(HelloWorld);
     
