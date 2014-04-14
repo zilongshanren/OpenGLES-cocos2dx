@@ -42,6 +42,7 @@ public:
     virtual void draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated) override;
     //we call our actual opengl commands here
     void onDraw();
+    void updateAnimation(float dt);
     
     virtual bool onTouchBegan(Touch *touch, Event *unused_event);
     virtual void onTouchMoved(Touch *touch, Event *unused_event);

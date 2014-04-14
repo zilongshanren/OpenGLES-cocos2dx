@@ -91,14 +91,20 @@ bool HelloWorld::init()
     this->initialize();
 
     
- 
+    this->schedule(schedule_selector(HelloWorld::updateAnimation), 1.0 / 60);
     
-    Visual visual;
-    visual.Color = m_spinning ? vec3(1, 1, 1) : vec3(0, 1, 1); visual.LowerLeft = ivec2(0, 48);
-    visual.ViewportSize = ivec2(320, 432);
-    visual.Orientation = m_orientation;
+    
     
     return true;
+}
+
+void HelloWorld::updateAnimation(float dt)
+{
+    if (m_animation.Active) {
+        m_animation.Elapsed += dt;
+        if (m_animation.Elapsed > m_animation.Duration)
+            m_animation.Active = false;
+    }
 }
 
 void HelloWorld::draw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool transformUpdated)
@@ -139,6 +145,13 @@ void HelloWorld::onDraw()
     mShaderProgram->setUniformsForBuiltins();
     
     //add your own draw code here
+    Visual visual;
+    visual.Color = m_spinning ? vec3(1, 1, 1) : vec3(0, 1, 1); visual.LowerLeft = ivec2(0, 48);
+    visual.ViewportSize = ivec2(320, 432);
+    visual.Orientation = m_orientation;
+
+    //rendering
+    
 
     
     CHECK_GL_ERROR_DEBUG();
@@ -185,15 +198,55 @@ void HelloWorld::onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *unused_even
 
 int HelloWorld::MapToButton(ivec2 touchpoint) const
 {
-    return 0;
+    if (touchpoint.y  < m_screenSize.y - m_buttonSize.y)
+        return -1;
+    
+    int buttonIndex = touchpoint.x / m_buttonSize.x;
+    if (buttonIndex >= ButtonCount)
+        return -1;
+    
+    return buttonIndex;
 }
 
 vec3 HelloWorld::MapToSphere(ivec2 touchpoint) const
 {
-    return vec3(0,0,0);
+    vec2 p = touchpoint - m_centerPoint;
+    
+    // Flip the Y axis because pixel coords increase towards the bottom.
+    p.y = -p.y;
+    
+    const float radius = m_trackballRadius;
+    const float safeRadius = radius - 1;
+    
+    if (p.Length() > safeRadius) {
+        float theta = atan2(p.y, p.x);
+        p.x = safeRadius * cos(theta);
+        p.y = safeRadius * sin(theta);
+    }
+    
+    float z = sqrt(radius * radius - p.LengthSquared());
+    vec3 mapped = vec3(p.x, p.y, z);
+    return mapped / radius;
 }
 
 void HelloWorld::PopulateVisuals(Visual *visuals)const
 {
+    for (int buttonIndex = 0; buttonIndex < ButtonCount; buttonIndex++) {
+        
+        int visualIndex = m_buttonSurfaces[buttonIndex];
+        visuals[visualIndex].Color = vec3(0.25f, 0.25f, 0.25f);
+        if (m_pressedButton == buttonIndex)
+            visuals[visualIndex].Color = vec3(0.5f, 0.5f, 0.5f);
+        
+        visuals[visualIndex].ViewportSize = m_buttonSize;
+        visuals[visualIndex].LowerLeft.x = buttonIndex * m_buttonSize.x;
+        visuals[visualIndex].LowerLeft.y = 0;
+        visuals[visualIndex].Orientation = Quaternion();
+    }
     
+    visuals[m_currentSurface].Color = m_spinning ? vec3(1, 1, 0.75f) : vec3(1, 1, 0.5f);
+    visuals[m_currentSurface].LowerLeft = ivec2(0, m_buttonSize.y);
+    visuals[m_currentSurface].ViewportSize = ivec2(m_screenSize.x, m_screenSize.y);
+    visuals[m_currentSurface].Orientation = m_orientation;
+
 }
