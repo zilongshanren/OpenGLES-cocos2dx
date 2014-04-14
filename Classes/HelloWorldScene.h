@@ -27,6 +27,14 @@ struct TXAnimation {
     Visual EndingVisuals[SurfaceCount];
 };
 
+struct Drawable {
+    GLuint VertexBuffer;
+    GLuint TriangleIndexBuffer;
+    GLuint LineIndexBuffer;
+    int TriangleIndexCount;
+    int LineIndexCount;
+};
+
 
 
 class HelloWorld : public cocos2d::Layer
@@ -82,6 +90,12 @@ private:
     int m_buttonSurfaces[ButtonCount];
     TXAnimation m_animation;
     vector<ISurface*> m_surfaces;
+    
+    
+    vector<Drawable> m_drawables;
+    GLuint m_colorRenderbuffer;
+    GLuint m_depthRenderbuffer;
+    mat4 m_translation;
 };
 
 #endif // __HELLOWORLD_SCENE_H__

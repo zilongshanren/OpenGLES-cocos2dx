@@ -19,6 +19,18 @@ Scene* HelloWorld::createScene()
 
 void HelloWorld::initialize()
 {
+    
+    m_spinning = false;
+    m_pressedButton = -1;
+    m_animation.Active = false;
+    m_buttonSurfaces[0] = 0;
+    m_buttonSurfaces[1] = 1;
+    m_buttonSurfaces[2] = 4;
+    m_buttonSurfaces[3] = 3;
+    m_buttonSurfaces[4] = 2;
+    m_currentSurface = 5;
+        
+        
     auto width = Director::getInstance()->getVisibleSize().width;
     auto height = Director::getInstance()->getVisibleSize().height;
     m_trackballRadius = width / 3;
@@ -33,6 +45,65 @@ void HelloWorld::initialize()
     surfaces[4] = new KleinBottle(0.2f);
     surfaces[5] = new MobiusStrip(1);
     m_surfaces = surfaces;
+    
+    
+    //init VBO
+    vector<ISurface*>::const_iterator surface;
+    for (surface = surfaces.begin(); surface != surfaces.end(); ++surface) {
+        
+        // Create the VBO for the vertices.
+        vector<float> vertices;
+        (*surface)->GenerateVertices(vertices, VertexFlagsNormals);
+        
+        
+        GLuint vertexBuffer;
+        glGenBuffers(1, &vertexBuffer);
+        glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+        glBufferData(GL_ARRAY_BUFFER,
+                     vertices.size() * sizeof(vertices[0]),
+                     &vertices[0],
+                     GL_STATIC_DRAW);
+        
+        // Create a VBO for the triangle indices.
+        int triangleIndexCount = (*surface)->GetTriangleIndexCount();
+        vector<GLushort> triangleIndices(triangleIndexCount);
+        (*surface)->GenerateTriangleIndices(triangleIndices);
+        GLuint triangleIndexBuffer;
+        glGenBuffers(1, &triangleIndexBuffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangleIndexBuffer);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                     triangleIndexCount * sizeof(GLushort),
+                     &triangleIndices[0],
+                     GL_STATIC_DRAW);
+        
+        
+        // Create a VBO for the line indices.
+        int lineIndexCount = (*surface)->GetTriangleIndexCount();
+        vector<GLushort> lineIndices(lineIndexCount);
+        (*surface)->GenerateLineIndices(lineIndices);
+        GLuint lineIndexBuffer;
+        glGenBuffers(1, &lineIndexBuffer);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lineIndexBuffer);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                     lineIndexCount * sizeof(GLushort),
+                     &lineIndices[0],
+                     GL_STATIC_DRAW);
+        
+        Drawable drawable = {
+            vertexBuffer,
+            triangleIndexBuffer,
+            lineIndexBuffer,
+            triangleIndexCount,
+            lineIndexCount
+        };
+        
+        m_drawables.push_back(drawable);
+    }
+    
+    //do cleanup
+    for (int i = 0; i < SurfaceCount; i++)
+        delete surfaces[i];
+    
 }
 
 
