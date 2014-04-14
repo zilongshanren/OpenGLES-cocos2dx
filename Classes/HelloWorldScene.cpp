@@ -51,9 +51,7 @@ void HelloWorld::initialize()
         
         // Create the VBO for the vertices.
         vector<float> vertices;
-        (*surface)->GenerateVertices(vertices, VertexFlagsNormals);
-        
-        
+        (*surface)->GenerateVertices(vertices);
         GLuint vertexBuffer;
         glGenBuffers(1, &vertexBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -62,39 +60,23 @@ void HelloWorld::initialize()
                      &vertices[0],
                      GL_STATIC_DRAW);
         
-        // Create a VBO for the triangle indices.
-        int triangleIndexCount = (*surface)->GetTriangleIndexCount();
-        vector<GLushort> triangleIndices(triangleIndexCount);
-        (*surface)->GenerateTriangleIndices(triangleIndices);
-        GLuint triangleIndexBuffer;
-        glGenBuffers(1, &triangleIndexBuffer);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, triangleIndexBuffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     triangleIndexCount * sizeof(GLushort),
-                     &triangleIndices[0],
-                     GL_STATIC_DRAW);
+        // Create a new VBO for the indices if needed.
+        int indexCount = (*surface)->GetLineIndexCount();
+        GLuint indexBuffer;
+        if (!m_drawables.empty() && indexCount == m_drawables[0].IndexCount) {
+            indexBuffer = m_drawables[0].IndexBuffer;
+        } else {
+            vector<GLushort> indices(indexCount);
+            (*surface)->GenerateLineIndices(indices);
+            glGenBuffers(1, &indexBuffer);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER,
+                         indexCount * sizeof(GLushort),
+                         &indices[0],
+                         GL_STATIC_DRAW);
+        }
         
-        
-        // Create a VBO for the line indices.
-        int lineIndexCount = (*surface)->GetTriangleIndexCount();
-        vector<GLushort> lineIndices(lineIndexCount);
-        (*surface)->GenerateLineIndices(lineIndices);
-        GLuint lineIndexBuffer;
-        glGenBuffers(1, &lineIndexBuffer);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, lineIndexBuffer);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER,
-                     lineIndexCount * sizeof(GLushort),
-                     &lineIndices[0],
-                     GL_STATIC_DRAW);
-        
-        Drawable drawable = {
-            vertexBuffer,
-            triangleIndexBuffer,
-            lineIndexBuffer,
-            triangleIndexCount,
-            lineIndexCount
-        };
-        
+        Drawable drawable = { vertexBuffer, indexBuffer, indexCount};
         m_drawables.push_back(drawable);
     }
     
@@ -102,7 +84,7 @@ void HelloWorld::initialize()
     for (int i = 0; i < SurfaceCount; i++)
         delete surfaces[i];
     
-    m_translation = mat4::Translate(0, 0, -7);
+    m_translation = mat4::Translate(0, 0, -0.8);
 }
 
 
@@ -152,6 +134,8 @@ bool HelloWorld::init()
     //how to map texture HelloWorld.png to my triangles
     _textureID =  Director::getInstance()->getTextureCache()->addImage("guanyu1.png")->getName();
 
+    m_colorSlot = mShaderProgram->getAttribLocation("a_color");
+    m_positionSlot = mShaderProgram->getAttribLocation("a_position");
     //we must specify the renderingEngine
     
     this->initialize();
@@ -248,25 +232,44 @@ void HelloWorld::rendering(const vector<Visual>& visuals)
 {
     vector<Visual>::const_iterator visual = visuals.begin();
     for (int visualIndex = 0; visual != visuals.end(); ++visual, ++visualIndex) {
-
-        // Set up the vertex buffer.
-        int stride = 2 * sizeof(vec3);
+        
+        // Set the viewport transform.
+//        ivec2 size = visual->ViewportSize;
+//        ivec2 lowerLeft = visual->LowerLeft;
+//        glViewport(lowerLeft.x, lowerLeft.y, size.x, size.y);
+        
+        // Set the model-view transform.
+        mat4 rotation = visual->Orientation.ToMatrix();
+        mat4 scale = mat4::Scale(0.1);
+        mat4 modelview = scale * rotation * m_translation;
+        m_modelviewUniform = mShaderProgram->getUniformLocation("modelView");
+        glUniformMatrix4fv(m_modelviewUniform, 1, 0, modelview.Pointer());
+        
+        // Set the projection transform.
+        //Since it's cocos2d-x, we don't need any projectionMatrix
+//        float h = 4.0f * size.y / size.x;
+//        mat4 projectionMatrix = mat4::Frustum(-2, 2, -h / 2, h / 2, 5, 10);
+//        glUniformMatrix4fv(m_projectionUniform, 1, 0, projectionMatrix.Pointer());
+        
+        // Set the color.
+        GL::enableVertexAttribs( GL::VERTEX_ATTRIB_FLAG_POSITION);
+        vec3 color = visual->Color;
+        glVertexAttrib4f(m_colorSlot, color.x, color.y, color.z, 1);
+        
+        // Draw the wireframe.
+        int stride = sizeof(vec3);
         const Drawable& drawable = m_drawables[visualIndex];
         glBindBuffer(GL_ARRAY_BUFFER, drawable.VertexBuffer);
-        glVertexAttribPointer(GL::VERTEX_ATTRIB_FLAG_POSITION, 3, GL_FLOAT, GL_FALSE, stride, 0);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawable.IndexBuffer);
+
+        
+        glVertexAttribPointer(m_positionSlot, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)0);
         
         
-        // Draw the lit triangles.
-        glPolygonOffset(4, 8);
-        // glPolygonOffset(1, 1000); // Use this for 1st and 2nd gen devices
-        glEnable(GL_POLYGON_OFFSET_FILL);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawable.TriangleIndexBuffer);
-        glDrawElements(GL_TRIANGLES, drawable.TriangleIndexCount, GL_UNSIGNED_SHORT, 0);
-        glDisable(GL_POLYGON_OFFSET_FILL);
+        glDrawElements(GL_TRIANGLES, drawable.IndexCount, GL_UNSIGNED_SHORT, (GLvoid*)0);
         
-        // Draw the black lines.
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawable.LineIndexBuffer);
-        glDrawElements(GL_LINES, drawable.TriangleIndexCount, GL_UNSIGNED_SHORT, 0);
+        CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1, drawable.IndexCount);
+
     }
 }
 

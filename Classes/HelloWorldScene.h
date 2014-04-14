@@ -29,10 +29,8 @@ struct TXAnimation {
 
 struct Drawable {
     GLuint VertexBuffer;
-    GLuint TriangleIndexBuffer;
-    GLuint LineIndexBuffer;
-    int TriangleIndexCount;
-    int LineIndexCount;
+    GLuint IndexBuffer;
+    int IndexCount;
 };
 
 
@@ -72,13 +70,9 @@ private:
     GLuint _textureID;
     Texture2D *_texture;
     
-    
-    //add wirefame
     void PopulateVisuals(Visual* visuals) const;
     int MapToButton(ivec2 touchpoint) const;
     vec3 MapToSphere(ivec2 touchpoint) const;
-    
-    
     float m_trackballRadius;
     ivec2 m_screenSize;
     ivec2 m_centerPoint;
@@ -91,9 +85,12 @@ private:
     int m_pressedButton;
     int m_buttonSurfaces[ButtonCount];
     TXAnimation m_animation;
-    
+
     
     vector<Drawable> m_drawables;
+    GLint m_modelviewUniform;
+    GLuint m_positionSlot;
+    GLuint m_colorSlot;
     mat4 m_translation;
 };
 
