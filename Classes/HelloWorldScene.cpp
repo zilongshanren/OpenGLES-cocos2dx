@@ -34,7 +34,9 @@ void HelloWorld::initialize()
     auto width = Director::getInstance()->getVisibleSize().width;
     auto height = Director::getInstance()->getVisibleSize().height;
     m_trackballRadius = width / 3;
-    m_screenSize = ivec2(width, height);
+    m_buttonSize.y = height / 10;
+    m_buttonSize.x = 4 * m_buttonSize.y / 3;
+    m_screenSize = ivec2(width, height - m_buttonSize.y);
     m_centerPoint = m_screenSize / 2;
     
     vector<ISurface*> surfaces(SurfaceCount);
@@ -84,7 +86,6 @@ void HelloWorld::initialize()
     for (int i = 0; i < SurfaceCount; i++)
         delete surfaces[i];
     
-    m_translation = mat4::Translate(0, 0, -0.8);
 }
 
 
@@ -191,6 +192,9 @@ void HelloWorld::onDraw()
     kmGLMatrixMode(KM_GL_PROJECTION);
     kmGLLoadIdentity();
     
+    glClearColor(0.5f, 0.5f, 0.5f, 1);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
     mShaderProgram->use();
     mShaderProgram->setUniformsForBuiltins();
     
@@ -231,21 +235,20 @@ void HelloWorld::onDraw()
 
 void HelloWorld::rendering(const vector<Visual>& visuals)
 {
-    vector<Visual> visuals2(SurfaceCount);
-    PopulateVisuals(&visuals2[0]);
-    
-    
     vector<Visual>::const_iterator visual = visuals.begin();
+    int drawCall = 0;
+    int drawIndices = 0;
     for (int visualIndex = 0; visual != visuals.end(); ++visual, ++visualIndex) {
         
         // Set the viewport transform.
-//        ivec2 size = visual->ViewportSize;
-//        ivec2 lowerLeft = visual->LowerLeft;
-//        glViewport(lowerLeft.x, lowerLeft.y, size.x, size.y);
+        ivec2 size = visual->ViewportSize;
+        ivec2 lowerLeft = visual->LowerLeft;
+        glViewport(lowerLeft.x, lowerLeft.y, size.x, size.y);
         
         // Set the model-view transform.
+        m_translation = mat4::Translate(0, 0, -0.5);
         mat4 rotation = visual->Orientation.ToMatrix();
-        mat4 scale = mat4::Scale(0.1);
+        mat4 scale = mat4::Scale(0.4);
         mat4 modelview = scale * rotation * m_translation;
         m_modelviewUniform = mShaderProgram->getUniformLocation("modelView");
         glUniformMatrix4fv(m_modelviewUniform, 1, 0, modelview.Pointer());
@@ -273,9 +276,12 @@ void HelloWorld::rendering(const vector<Visual>& visuals)
         
         glDrawElements(GL_TRIANGLES, drawable.IndexCount, GL_UNSIGNED_SHORT, (GLvoid*)0);
         
-        CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(1, drawable.IndexCount);
+        drawCall++;
+        drawIndices += drawable.IndexCount;
 
     }
+    CC_INCREMENT_GL_DRAWN_BATCHES_AND_VERTICES(drawCall, drawIndices);
+
 }
 
 
