@@ -216,6 +216,7 @@ void HelloWorld::onDraw()
     }
     
     //drawing
+    
     this->rendering(visuals);
     
     
@@ -230,6 +231,10 @@ void HelloWorld::onDraw()
 
 void HelloWorld::rendering(const vector<Visual>& visuals)
 {
+    vector<Visual> visuals2(SurfaceCount);
+    PopulateVisuals(&visuals2[0]);
+    
+    
     vector<Visual>::const_iterator visual = visuals.begin();
     for (int visualIndex = 0; visual != visuals.end(); ++visual, ++visualIndex) {
         
@@ -321,6 +326,7 @@ void HelloWorld::onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *unused_even
         PopulateVisuals(&m_animation.StartingVisuals[0]);
         swap(m_buttonSurfaces[m_pressedButton], m_currentSurface);
         PopulateVisuals(&m_animation.EndingVisuals[0]);
+        CCLOG("touch end");
     }
     
     m_pressedButton = -1;
