@@ -193,7 +193,9 @@ void HelloWorld::onDraw()
     kmGLLoadIdentity();
     
     glClearColor(0.5f, 0.5f, 0.5f, 1);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClearDepthf(1.0);
+    glDepthFunc(GL_LEQUAL);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     mShaderProgram->use();
     mShaderProgram->setUniformsForBuiltins();
@@ -246,7 +248,7 @@ void HelloWorld::rendering(const vector<Visual>& visuals)
         glViewport(lowerLeft.x, lowerLeft.y, size.x, size.y);
         
         // Set the model-view transform.
-        m_translation = mat4::Translate(0, 0, -7);
+        m_translation = mat4::Translate(0, 0, -10.5);
         mat4 rotation = visual->Orientation.ToMatrix();
 //        mat4 scale = mat4::Scale(0.4);
         mat4 modelview = rotation * m_translation;
@@ -256,7 +258,7 @@ void HelloWorld::rendering(const vector<Visual>& visuals)
         // Set the projection transform.
         //Since it's cocos2d-x, we don't need any projectionMatrix
         float h = 4.0f * size.y / size.x;
-        mat4 projectionMatrix = mat4::Frustum(-2, 2, -h / 2, h / 2, 5, 10);
+        mat4 projectionMatrix = mat4::Frustum(-2, 2, -h / 2, h / 2, 5, 20);
         m_projectionUniform = mShaderProgram->getUniformLocation("projection");
         glUniformMatrix4fv(m_projectionUniform, 1, 0, projectionMatrix.Pointer());
         
