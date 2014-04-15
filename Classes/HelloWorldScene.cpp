@@ -53,7 +53,7 @@ void HelloWorld::initialize()
         
         // Create the VBO for the vertices.
         vector<float> vertices;
-        (*surface)->GenerateVertices(vertices);
+        (*surface)->GenerateVertices(vertices, VertexFlagsNormals);
         GLuint vertexBuffer;
         glGenBuffers(1, &vertexBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -191,13 +191,33 @@ void HelloWorld::onDraw()
     kmGLMatrixMode(KM_GL_PROJECTION);
     kmGLLoadIdentity();
     
-    glClearColor(0.5f, 0.5f, 0.5f, 1);
-    glClearDepthf(1.0);
-    glDepthFunc(GL_LEQUAL);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+   
     
     mShaderProgram->use();
     mShaderProgram->setUniformsForBuiltins();
+    GLuint program = mShaderProgram->getProgram();
+    m_attributes.Position = glGetAttribLocation(program, "Position");
+    m_attributes.Normal = glGetAttribLocation(program, "Normal");
+    m_attributes.Ambient = glGetAttribLocation(program, "AmbientMaterial");
+    m_attributes.Diffuse = glGetAttribLocation(program, "DiffuseMaterial");
+    m_attributes.Specular = glGetAttribLocation(program, "SpecularMaterial");
+    m_attributes.Shininess = glGetAttribLocation(program, "Shininess");
+    
+    m_uniforms.Projection = glGetUniformLocation(program, "Projection");
+    m_uniforms.Modelview = glGetUniformLocation(program, "Modelview");
+    m_uniforms.NormalMatrix = glGetUniformLocation(program, "NormalMatrix");
+    m_uniforms.LightPosition = glGetUniformLocation(program, "LightPosition");
+    
+    
+    
+    // Set up some default material parameters.
+    glVertexAttrib3f(m_attributes.Ambient, 0.04f, 0.04f, 0.04f);
+    glVertexAttrib3f(m_attributes.Specular, 0.5, 0.5, 0.5);
+    glVertexAttrib1f(m_attributes.Shininess, 150);
+    // Initialize various state.
+    glEnableVertexAttribArray(m_attributes.Position);
+    glEnableVertexAttribArray(m_attributes.Normal);
+    glEnable(GL_DEPTH_TEST);
     
     //add your own draw code here
     vector<Visual> visuals(SurfaceCount);
@@ -236,6 +256,9 @@ void HelloWorld::onDraw()
 
 void HelloWorld::rendering(const vector<Visual>& visuals)
 {
+    glClearColor(0.5f, 0.5f, 0.5f, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
     vector<Visual>::const_iterator visual = visuals.begin();
     int drawCall = 0;
     int drawIndices = 0;
@@ -246,29 +269,7 @@ void HelloWorld::rendering(const vector<Visual>& visuals)
         ivec2 lowerLeft = visual->LowerLeft;
         glViewport(lowerLeft.x, lowerLeft.y, size.x, size.y);
         
-        GLuint program = mShaderProgram->getProgram();
-        m_attributes.Position = glGetAttribLocation(program, "Position");
-        m_attributes.Normal = glGetAttribLocation(program, "Normal");
-        m_attributes.Ambient = glGetAttribLocation(program, "AmbientMaterial");
-        m_attributes.Diffuse = glGetAttribLocation(program, "DiffuseMaterial");
-        m_attributes.Specular = glGetAttribLocation(program, "SpecularMaterial");
-        m_attributes.Shininess = glGetAttribLocation(program, "Shininess");
-        
-        m_uniforms.Projection = glGetUniformLocation(program, "Projection");
-        m_uniforms.Modelview = glGetUniformLocation(program, "Modelview");
-        m_uniforms.NormalMatrix = glGetUniformLocation(program, "NormalMatrix");
-        m_uniforms.LightPosition = glGetUniformLocation(program, "LightPosition");
-        
-        
-        
-        // Set up some default material parameters.
-        glVertexAttrib3f(m_attributes.Ambient, 0.04f, 0.04f, 0.04f);
-        glVertexAttrib3f(m_attributes.Specular, 0.5, 0.5, 0.5);
-        glVertexAttrib1f(m_attributes.Shininess, 50);
-        // Initialize various state.
-        glEnableVertexAttribArray(m_attributes.Position);
-        glEnableVertexAttribArray(m_attributes.Normal);
-        glEnable(GL_DEPTH_TEST);
+       
         
         // Set the model-view transform.
         m_translation = mat4::Translate(0, 0, -7);
@@ -305,10 +306,13 @@ void HelloWorld::rendering(const vector<Visual>& visuals)
         // Draw the surface.
         int stride = 2 * sizeof(vec3);
         const GLvoid* offset = (const GLvoid*) sizeof(vec3);
+        
         GLint position = m_attributes.Position;
         GLint normal = m_attributes.Normal;
+        
         const Drawable& drawable = m_drawables[visualIndex];
         glBindBuffer(GL_ARRAY_BUFFER, drawable.VertexBuffer);
+        
         glVertexAttribPointer(position, 3, GL_FLOAT,GL_FALSE, stride, 0);
         glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE,stride, offset);
         
