@@ -135,7 +135,6 @@ bool HelloWorld::init()
     //how to map texture HelloWorld.png to my triangles
     _textureID =  Director::getInstance()->getTextureCache()->addImage("guanyu1.png")->getName();
 
-    m_colorSlot = mShaderProgram->getAttribLocation("a_color");
     m_positionSlot = mShaderProgram->getAttribLocation("a_position");
     //we must specify the renderingEngine
     
@@ -247,37 +246,75 @@ void HelloWorld::rendering(const vector<Visual>& visuals)
         ivec2 lowerLeft = visual->LowerLeft;
         glViewport(lowerLeft.x, lowerLeft.y, size.x, size.y);
         
+        GLuint program = mShaderProgram->getProgram();
+        m_attributes.Position = glGetAttribLocation(program, "Position");
+        m_attributes.Normal = glGetAttribLocation(program, "Normal");
+        m_attributes.Ambient = glGetAttribLocation(program, "AmbientMaterial");
+        m_attributes.Diffuse = glGetAttribLocation(program, "DiffuseMaterial");
+        m_attributes.Specular = glGetAttribLocation(program, "SpecularMaterial");
+        m_attributes.Shininess = glGetAttribLocation(program, "Shininess");
+        
+        m_uniforms.Projection = glGetUniformLocation(program, "Projection");
+        m_uniforms.Modelview = glGetUniformLocation(program, "Modelview");
+        m_uniforms.NormalMatrix = glGetUniformLocation(program, "NormalMatrix");
+        m_uniforms.LightPosition = glGetUniformLocation(program, "LightPosition");
+        
+        
+        
+        // Set up some default material parameters.
+        glVertexAttrib3f(m_attributes.Ambient, 0.04f, 0.04f, 0.04f);
+        glVertexAttrib3f(m_attributes.Specular, 0.5, 0.5, 0.5);
+        glVertexAttrib1f(m_attributes.Shininess, 50);
+        // Initialize various state.
+        glEnableVertexAttribArray(m_attributes.Position);
+        glEnableVertexAttribArray(m_attributes.Normal);
+        glEnable(GL_DEPTH_TEST);
+        
         // Set the model-view transform.
-        m_translation = mat4::Translate(0, 0, -10.5);
+        m_translation = mat4::Translate(0, 0, -7);
         mat4 rotation = visual->Orientation.ToMatrix();
 //        mat4 scale = mat4::Scale(0.4);
         mat4 modelview = rotation * m_translation;
-        m_modelviewUniform = mShaderProgram->getUniformLocation("modelView");
-        glUniformMatrix4fv(m_modelviewUniform, 1, 0, modelview.Pointer());
+        m_uniforms.Modelview = mShaderProgram->getUniformLocation("Modelview");
+        glUniformMatrix4fv(m_uniforms.Modelview, 1, 0, modelview.Pointer());
         
         // Set the projection transform.
         //Since it's cocos2d-x, we don't need any projectionMatrix
         float h = 4.0f * size.y / size.x;
-        mat4 projectionMatrix = mat4::Frustum(-2, 2, -h / 2, h / 2, 5, 20);
-        m_projectionUniform = mShaderProgram->getUniformLocation("projection");
-        glUniformMatrix4fv(m_projectionUniform, 1, 0, projectionMatrix.Pointer());
+        mat4 projectionMatrix = mat4::Frustum(-2, 2, -h / 2, h / 2, 5, 10);
+        m_uniforms.Projection = mShaderProgram->getUniformLocation("Projection");
+        glUniformMatrix4fv(m_uniforms.Projection, 1, 0, projectionMatrix.Pointer());
+        
+        
+        // Set the light position.
+        vec4 lightPosition(0.25, 0.25, 1, 0);
+        glUniform3fv(m_uniforms.LightPosition, 1, lightPosition.Pointer());
+        // Set the model-view transform.
+       
+        // Set the normal matrix.
+        // It's orthogonal, so its Inverse-Transpose is itself!
+        mat3 normalMatrix = modelview.ToMat3();
+        glUniformMatrix3fv(m_uniforms.NormalMatrix, 1,0, normalMatrix.Pointer());
+        
+        
         
         // Set the color.
-        GL::enableVertexAttribs( GL::VERTEX_ATTRIB_FLAG_POSITION);
-        vec3 color = visual->Color;
-        glVertexAttrib4f(m_colorSlot, color.x, color.y, color.z, 1);
         
-        // Draw the wireframe.
-        int stride = sizeof(vec3);
+        vec3 color = visual->Color * 0.75f;
+        glVertexAttrib4f(m_attributes.Diffuse, color.x, color.y, color.z, 1);
+        // Draw the surface.
+        int stride = 2 * sizeof(vec3);
+        const GLvoid* offset = (const GLvoid*) sizeof(vec3);
+        GLint position = m_attributes.Position;
+        GLint normal = m_attributes.Normal;
         const Drawable& drawable = m_drawables[visualIndex];
         glBindBuffer(GL_ARRAY_BUFFER, drawable.VertexBuffer);
+        glVertexAttribPointer(position, 3, GL_FLOAT,GL_FALSE, stride, 0);
+        glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE,stride, offset);
+        
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawable.IndexBuffer);
-
         
-        glVertexAttribPointer(m_positionSlot, 3, GL_FLOAT, GL_FALSE, stride, (GLvoid*)0);
-        
-        
-        glDrawElements(GL_TRIANGLES, drawable.IndexCount, GL_UNSIGNED_SHORT, (GLvoid*)0);
+        glDrawElements(GL_TRIANGLES, drawable.IndexCount, GL_UNSIGNED_SHORT, 0);
         
         drawCall++;
         drawIndices += drawable.IndexCount;

@@ -34,6 +34,23 @@ struct Drawable {
 };
 
 
+struct UniformHandles {
+    GLuint Modelview;
+    GLuint Projection;
+    GLuint NormalMatrix;
+    GLuint LightPosition;
+};
+
+struct AttributeHandles {
+    GLint Position;
+    GLint Normal;
+    GLint Ambient;
+    GLint Diffuse;
+    GLint Specular;
+    GLint Shininess;
+};
+
+
 
 class HelloWorld : public cocos2d::Layer
 {
@@ -65,8 +82,6 @@ private:
     CustomCommand _customCommand;
     
     GLProgram *mShaderProgram;
-    GLint mColorLocation;
-    GLint mPositionLocation;
     GLuint _textureID;
     Texture2D *_texture;
     
@@ -88,12 +103,13 @@ private:
 
     
     vector<Drawable> m_drawables;
-    GLint m_modelviewUniform;
-    GLint m_projectionUniform;
     
     GLuint m_positionSlot;
-    GLuint m_colorSlot;
     mat4 m_translation;
+    
+    //add new unifroms and attributes
+    UniformHandles m_uniforms;
+    AttributeHandles m_attributes;
 };
 
 #endif // __HELLOWORLD_SCENE_H__
