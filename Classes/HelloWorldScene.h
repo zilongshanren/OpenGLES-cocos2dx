@@ -89,6 +89,8 @@ private:
     
     vector<Drawable> m_drawables;
     GLint m_modelviewUniform;
+    GLint m_projectionUniform;
+    
     GLuint m_positionSlot;
     GLuint m_colorSlot;
     mat4 m_translation;

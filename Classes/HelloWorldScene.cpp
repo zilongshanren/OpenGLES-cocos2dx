@@ -246,18 +246,19 @@ void HelloWorld::rendering(const vector<Visual>& visuals)
         glViewport(lowerLeft.x, lowerLeft.y, size.x, size.y);
         
         // Set the model-view transform.
-        m_translation = mat4::Translate(0, 0, -0.5);
+        m_translation = mat4::Translate(0, 0, -7);
         mat4 rotation = visual->Orientation.ToMatrix();
-        mat4 scale = mat4::Scale(0.4);
-        mat4 modelview = scale * rotation * m_translation;
+//        mat4 scale = mat4::Scale(0.4);
+        mat4 modelview = rotation * m_translation;
         m_modelviewUniform = mShaderProgram->getUniformLocation("modelView");
         glUniformMatrix4fv(m_modelviewUniform, 1, 0, modelview.Pointer());
         
         // Set the projection transform.
         //Since it's cocos2d-x, we don't need any projectionMatrix
-//        float h = 4.0f * size.y / size.x;
-//        mat4 projectionMatrix = mat4::Frustum(-2, 2, -h / 2, h / 2, 5, 10);
-//        glUniformMatrix4fv(m_projectionUniform, 1, 0, projectionMatrix.Pointer());
+        float h = 4.0f * size.y / size.x;
+        mat4 projectionMatrix = mat4::Frustum(-2, 2, -h / 2, h / 2, 5, 10);
+        m_projectionUniform = mShaderProgram->getUniformLocation("projection");
+        glUniformMatrix4fv(m_projectionUniform, 1, 0, projectionMatrix.Pointer());
         
         // Set the color.
         GL::enableVertexAttribs( GL::VERTEX_ATTRIB_FLAG_POSITION);
