@@ -38,16 +38,17 @@ struct UniformHandles {
     GLuint Modelview;
     GLuint Projection;
     GLuint NormalMatrix;
+    
     GLuint LightPosition;
+    GLint Ambient;
+    GLint Specular;
+    GLint Shininess;
 };
 
 struct AttributeHandles {
     GLint Position;
     GLint Normal;
-    GLint Ambient;
     GLint Diffuse;
-    GLint Specular;
-    GLint Shininess;
 };
 
 

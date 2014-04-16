@@ -198,10 +198,12 @@ void HelloWorld::onDraw()
     GLuint program = mShaderProgram->getProgram();
     m_attributes.Position = glGetAttribLocation(program, "Position");
     m_attributes.Normal = glGetAttribLocation(program, "Normal");
-    m_attributes.Ambient = glGetAttribLocation(program, "AmbientMaterial");
     m_attributes.Diffuse = glGetAttribLocation(program, "DiffuseMaterial");
-    m_attributes.Specular = glGetAttribLocation(program, "SpecularMaterial");
-    m_attributes.Shininess = glGetAttribLocation(program, "Shininess");
+
+    
+    m_uniforms.Ambient = glGetUniformLocation(program, "AmbientMaterial");
+    m_uniforms.Specular = glGetUniformLocation(program, "SpecularMaterial");
+    m_uniforms.Shininess = glGetUniformLocation(program, "Shininess");
     
     m_uniforms.Projection = glGetUniformLocation(program, "Projection");
     m_uniforms.Modelview = glGetUniformLocation(program, "Modelview");
@@ -211,9 +213,7 @@ void HelloWorld::onDraw()
     
     
     // Set up some default material parameters.
-    glVertexAttrib3f(m_attributes.Ambient, 0.04f, 0.04f, 0.04f);
-    glVertexAttrib3f(m_attributes.Specular, 0.5, 0.5, 0.5);
-    glVertexAttrib1f(m_attributes.Shininess, 150);
+  
     // Initialize various state.
     glEnableVertexAttribArray(m_attributes.Position);
     glEnableVertexAttribArray(m_attributes.Normal);
@@ -298,7 +298,9 @@ void HelloWorld::rendering(const vector<Visual>& visuals)
         glUniformMatrix3fv(m_uniforms.NormalMatrix, 1,0, normalMatrix.Pointer());
         
         
-        
+        glUniform3f(m_uniforms.Ambient, 0.04f, 0.04f, 0.04f);
+        glUniform3f(m_uniforms.Specular, 0.5, 0.5, 0.5);
+        glUniform1f(m_uniforms.Shininess, 150);
         // Set the color.
         
         vec3 color = visual->Color * 0.75f;
