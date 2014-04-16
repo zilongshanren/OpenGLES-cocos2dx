@@ -32,11 +32,11 @@ struct Visual {
     Quaternion Orientation;
 };
 
-struct IRenderingEngine {
-    virtual void Initialize(const vector<ISurface*>& surfaces) = 0;
-    virtual void Render(const vector<Visual>& visuals) const = 0;
-    virtual ~IRenderingEngine() {}
-};
+//struct IRenderingEngine {
+//    virtual void Initialize(const vector<ISurface*>& surfaces) = 0;
+//    virtual void Render(const vector<Visual>& visuals) const = 0;
+//    virtual ~IRenderingEngine() {}
+//};
 
 struct IResourceManager {
     virtual string GetResourcePath() const = 0;
@@ -47,11 +47,11 @@ struct IResourceManager {
     virtual ~IResourceManager() {}
 };
 
-namespace Darwin       { IResourceManager* CreateResourceManager(); }
-namespace WireframeES2 { IRenderingEngine* CreateRenderingEngine(); }
-namespace SolidES2     { IRenderingEngine* CreateRenderingEngine(); }
-namespace SolidGL2     { IRenderingEngine* CreateRenderingEngine(); }
-namespace FacetedES2   { IRenderingEngine* CreateRenderingEngine(); }
-namespace DepthViewer  { IRenderingEngine* CreateRenderingEngine(); }
-namespace TexturedES2  { IRenderingEngine* CreateRenderingEngine(IResourceManager*); }
-namespace TexturedGL2  { IRenderingEngine* CreateRenderingEngine(IResourceManager*); }
+//namespace Darwin       { IResourceManager* CreateResourceManager(); }
+//namespace WireframeES2 { IRenderingEngine* CreateRenderingEngine(); }
+//namespace SolidES2     { IRenderingEngine* CreateRenderingEngine(); }
+//namespace SolidGL2     { IRenderingEngine* CreateRenderingEngine(); }
+//namespace FacetedES2   { IRenderingEngine* CreateRenderingEngine(); }
+//namespace DepthViewer  { IRenderingEngine* CreateRenderingEngine(); }
+//namespace TexturedES2  { IRenderingEngine* CreateRenderingEngine(IResourceManager*); }
+//namespace TexturedGL2  { IRenderingEngine* CreateRenderingEngine(IResourceManager*); }

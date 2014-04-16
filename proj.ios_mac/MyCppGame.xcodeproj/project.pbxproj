@@ -26,6 +26,9 @@
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
 		2905E91D18F7F248004A00D6 /* guanyu1.png in Resources */ = {isa = PBXBuildFile; fileRef = 2905E91C18F7F248004A00D6 /* guanyu1.png */; };
+		299F7F8918FEDA4600F5333B /* micronapalmv2.obj in Resources */ = {isa = PBXBuildFile; fileRef = 299F7F8718FEDA4600F5333B /* micronapalmv2.obj */; };
+		299F7F8A18FEDA4600F5333B /* Ninja.obj in Resources */ = {isa = PBXBuildFile; fileRef = 299F7F8818FEDA4600F5333B /* Ninja.obj */; };
+		299F7F8F18FEDBB100F5333B /* ObjSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 299F7F8D18FEDBB100F5333B /* ObjSurface.cpp */; };
 		29BE6BAE18FC048900222CA0 /* ParametricSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 29BE6BAC18FC048900222CA0 /* ParametricSurface.cpp */; };
 		29BF390918F41598008A6B6A /* myshader.vert in Resources */ = {isa = PBXBuildFile; fileRef = 29BF390818F41598008A6B6A /* myshader.vert */; };
 		29BF390D18F415AA008A6B6A /* myshader.frag in Resources */ = {isa = PBXBuildFile; fileRef = 29BF390C18F415AA008A6B6A /* myshader.frag */; };
@@ -236,6 +239,10 @@
 		2905E93018F93686004A00D6 /* Matrix.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Matrix.hpp; sourceTree = "<group>"; };
 		2905E93118F93686004A00D6 /* Quaternion.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Quaternion.hpp; sourceTree = "<group>"; };
 		2905E93218F93686004A00D6 /* Vector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Vector.hpp; sourceTree = "<group>"; };
+		299F7F8718FEDA4600F5333B /* micronapalmv2.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = micronapalmv2.obj; sourceTree = "<group>"; };
+		299F7F8818FEDA4600F5333B /* Ninja.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Ninja.obj; sourceTree = "<group>"; };
+		299F7F8D18FEDBB100F5333B /* ObjSurface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ObjSurface.cpp; path = ../Classes/ObjSurface.cpp; sourceTree = "<group>"; };
+		299F7F8E18FEDBB100F5333B /* ObjSurface.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ObjSurface.hpp; path = ../Classes/ObjSurface.hpp; sourceTree = "<group>"; };
 		29BE6BAA18FC048900222CA0 /* Interfaces.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Interfaces.hpp; path = ../Classes/Interfaces.hpp; sourceTree = "<group>"; };
 		29BE6BAB18FC048900222CA0 /* ParametricEquations.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ParametricEquations.hpp; path = ../Classes/ParametricEquations.hpp; sourceTree = "<group>"; };
 		29BE6BAC18FC048900222CA0 /* ParametricSurface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParametricSurface.cpp; path = ../Classes/ParametricSurface.cpp; sourceTree = "<group>"; };
@@ -350,6 +357,8 @@
 		15AA9C4015B7EC450033D6C2 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				299F7F8D18FEDBB100F5333B /* ObjSurface.cpp */,
+				299F7F8E18FEDBB100F5333B /* ObjSurface.hpp */,
 				29BE6BAA18FC048900222CA0 /* Interfaces.hpp */,
 				29BE6BAB18FC048900222CA0 /* ParametricEquations.hpp */,
 				29BE6BAC18FC048900222CA0 /* ParametricSurface.cpp */,
@@ -476,6 +485,8 @@
 		78C7DDAA14EBA5050085D0C2 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				299F7F8718FEDA4600F5333B /* micronapalmv2.obj */,
+				299F7F8818FEDA4600F5333B /* Ninja.obj */,
 				2905E91C18F7F248004A00D6 /* guanyu1.png */,
 				1AFAF8B916D35E4900DB1158 /* CloseNormal.png */,
 				1AFAF8BA16D35E4900DB1158 /* CloseSelected.png */,
@@ -657,9 +668,11 @@
 				5087E77F17EB970100C73F5D /* Default@2x.png in Resources */,
 				50EF629917ECD46A001EB2F8 /* Icon-100.png in Resources */,
 				1AFAF8BC16D35E4900DB1158 /* CloseNormal.png in Resources */,
+				299F7F8918FEDA4600F5333B /* micronapalmv2.obj in Resources */,
 				29BF390918F41598008A6B6A /* myshader.vert in Resources */,
 				5087E78317EB970100C73F5D /* Icon-152.png in Resources */,
 				29BF390D18F415AA008A6B6A /* myshader.frag in Resources */,
+				299F7F8A18FEDA4600F5333B /* Ninja.obj in Resources */,
 				5087E77D17EB970100C73F5D /* Default-568h@2x.png in Resources */,
 				5087E78517EB970100C73F5D /* Icon-72.png in Resources */,
 				1AFAF8BD16D35E4900DB1158 /* CloseSelected.png in Resources */,
@@ -694,6 +707,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				299F7F8F18FEDBB100F5333B /* ObjSurface.cpp in Sources */,
 				503AE10017EB989F00D1A890 /* AppController.mm in Sources */,
 				29BE6BAE18FC048900222CA0 /* ParametricSurface.cpp in Sources */,
 				503AE10217EB989F00D1A890 /* RootViewController.mm in Sources */,
