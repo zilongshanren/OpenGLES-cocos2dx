@@ -15,6 +15,10 @@ uniform highp vec3 SpecularMaterial;
 uniform highp float Shininess;
 uniform highp vec3 LightPosition;
 
+uniform sampler2D Sampler;
+
+varying mediump vec2 TextureCoordOut;
+
 void main()
 {
     highp vec3 N = normalize(EyespaceNormal);
@@ -34,6 +38,6 @@ void main()
     
     lowp vec3 color = AmbientMaterial + df * Diffuse + sf * SpecularMaterial;
     
-    gl_FragColor = vec4(color, 1.0);
+    gl_FragColor = texture2D(Sampler, TextureCoordOut) * vec4(color,1.0);
 }
 

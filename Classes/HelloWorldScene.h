@@ -49,6 +49,7 @@ struct AttributeHandles {
     GLint Position;
     GLint Normal;
     GLint Diffuse;
+    GLint TextureCoord;
 };
 
 
@@ -84,7 +85,6 @@ private:
     
     GLProgram *mShaderProgram;
     GLuint _textureID;
-    Texture2D *_texture;
     
     void PopulateVisuals(Visual* visuals) const;
     int MapToButton(ivec2 touchpoint) const;

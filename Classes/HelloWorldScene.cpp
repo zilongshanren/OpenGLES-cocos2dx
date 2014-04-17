@@ -138,10 +138,23 @@ bool HelloWorld::init()
 
     
     //how to map texture HelloWorld.png to my triangles
-    _textureID =  Director::getInstance()->getTextureCache()->addImage("guanyu1.png")->getName();
 
     m_positionSlot = mShaderProgram->getAttribLocation("a_position");
     //we must specify the renderingEngine
+    
+    
+    Image *image = new Image;
+    auto imagePath = FileUtils::getInstance()->fullPathForFilename("Grid16.png");
+    image->initWithImageFile(imagePath);
+    
+    glGenTextures(1, &_textureID);
+    glBindTexture(GL_TEXTURE_2D, _textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->getWidth(), image->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image->getData());
+    
+    image->release();
     
     this->initialize();
 
@@ -204,7 +217,7 @@ void HelloWorld::onDraw()
     m_attributes.Position = glGetAttribLocation(program, "Position");
     m_attributes.Normal = glGetAttribLocation(program, "Normal");
     m_attributes.Diffuse = glGetAttribLocation(program, "DiffuseMaterial");
-
+    m_attributes.TextureCoord = glGetAttribLocation(program, "TextureCoord");
     
     m_uniforms.Ambient = glGetUniformLocation(program, "AmbientMaterial");
     m_uniforms.Specular = glGetUniformLocation(program, "SpecularMaterial");
@@ -216,12 +229,21 @@ void HelloWorld::onDraw()
     m_uniforms.LightPosition = glGetUniformLocation(program, "LightPosition");
     
     
+  
+    
+    glBindTexture(GL_TEXTURE_2D, _textureID);
+    GLuint textureLocation = glGetUniformLocation(program, "Sampler");
+    
+    glUniform1f(textureLocation, 0);
+    
+
     
     // Set up some default material parameters.
   
     // Initialize various state.
     glEnableVertexAttribArray(m_attributes.Position);
     glEnableVertexAttribArray(m_attributes.Normal);
+    glEnableVertexAttribArray(m_attributes.TextureCoord);
     glEnable(GL_DEPTH_TEST);
     
     //add your own draw code here
@@ -313,16 +335,19 @@ void HelloWorld::rendering(const vector<Visual>& visuals)
         // Draw the surface.
         int stride = 2 * sizeof(vec3);
         const GLvoid* offset = (const GLvoid*) sizeof(vec3);
+        const GLvoid* texOffset = (const GLvoid*) (2 * sizeof(vec3));
         
         GLint position = m_attributes.Position;
         GLint normal = m_attributes.Normal;
+        GLint texture = m_attributes.TextureCoord;
+        
         
         const Drawable& drawable = m_drawables[visualIndex];
         glBindBuffer(GL_ARRAY_BUFFER, drawable.VertexBuffer);
         
         glVertexAttribPointer(position, 3, GL_FLOAT,GL_FALSE, stride, 0);
         glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE,stride, offset);
-        
+        glVertexAttribPointer(texture, 2, GL_FLOAT, GL_FALSE, stride, texOffset);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawable.IndexBuffer);
         
         glDrawElements(GL_TRIANGLES, drawable.IndexCount, GL_UNSIGNED_SHORT, 0);

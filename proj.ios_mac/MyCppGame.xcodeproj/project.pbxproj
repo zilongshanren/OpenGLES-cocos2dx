@@ -29,6 +29,7 @@
 		299F7F8918FEDA4600F5333B /* micronapalmv2.obj in Resources */ = {isa = PBXBuildFile; fileRef = 299F7F8718FEDA4600F5333B /* micronapalmv2.obj */; };
 		299F7F8A18FEDA4600F5333B /* Ninja.obj in Resources */ = {isa = PBXBuildFile; fileRef = 299F7F8818FEDA4600F5333B /* Ninja.obj */; };
 		299F7F8F18FEDBB100F5333B /* ObjSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 299F7F8D18FEDBB100F5333B /* ObjSurface.cpp */; };
+		299F7FA41900133F00F5333B /* Grid16.png in Resources */ = {isa = PBXBuildFile; fileRef = 299F7FA31900133F00F5333B /* Grid16.png */; };
 		29BE6BAE18FC048900222CA0 /* ParametricSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 29BE6BAC18FC048900222CA0 /* ParametricSurface.cpp */; };
 		29BF390918F41598008A6B6A /* myshader.vert in Resources */ = {isa = PBXBuildFile; fileRef = 29BF390818F41598008A6B6A /* myshader.vert */; };
 		29BF390D18F415AA008A6B6A /* myshader.frag in Resources */ = {isa = PBXBuildFile; fileRef = 29BF390C18F415AA008A6B6A /* myshader.frag */; };
@@ -243,6 +244,7 @@
 		299F7F8818FEDA4600F5333B /* Ninja.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Ninja.obj; sourceTree = "<group>"; };
 		299F7F8D18FEDBB100F5333B /* ObjSurface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ObjSurface.cpp; path = ../Classes/ObjSurface.cpp; sourceTree = "<group>"; };
 		299F7F8E18FEDBB100F5333B /* ObjSurface.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ObjSurface.hpp; path = ../Classes/ObjSurface.hpp; sourceTree = "<group>"; };
+		299F7FA31900133F00F5333B /* Grid16.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Grid16.png; sourceTree = "<group>"; };
 		29BE6BAA18FC048900222CA0 /* Interfaces.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = Interfaces.hpp; path = ../Classes/Interfaces.hpp; sourceTree = "<group>"; };
 		29BE6BAB18FC048900222CA0 /* ParametricEquations.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ParametricEquations.hpp; path = ../Classes/ParametricEquations.hpp; sourceTree = "<group>"; };
 		29BE6BAC18FC048900222CA0 /* ParametricSurface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ParametricSurface.cpp; path = ../Classes/ParametricSurface.cpp; sourceTree = "<group>"; };
@@ -485,6 +487,7 @@
 		78C7DDAA14EBA5050085D0C2 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				299F7FA31900133F00F5333B /* Grid16.png */,
 				299F7F8718FEDA4600F5333B /* micronapalmv2.obj */,
 				299F7F8818FEDA4600F5333B /* Ninja.obj */,
 				2905E91C18F7F248004A00D6 /* guanyu1.png */,
@@ -680,6 +683,7 @@
 				5087E78017EB970100C73F5D /* Icon-114.png in Resources */,
 				1AFAF8BE16D35E4900DB1158 /* HelloWorld.png in Resources */,
 				50EF62A217ECD613001EB2F8 /* Icon-29.png in Resources */,
+				299F7FA41900133F00F5333B /* Grid16.png in Resources */,
 				50EF629617ECD46A001EB2F8 /* Icon-40.png in Resources */,
 				5087E78217EB970100C73F5D /* Icon-144.png in Resources */,
 				50EF629817ECD46A001EB2F8 /* Icon-80.png in Resources */,

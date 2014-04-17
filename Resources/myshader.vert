@@ -12,6 +12,7 @@ attribute vec4 Position;
 //all these are lighting
 attribute vec3 Normal;
 attribute vec3 DiffuseMaterial;
+attribute vec2 TextureCoord;
 
 //attribute vec3 AmbientMaterial;  //is it a_color?
 //attribute vec3 SpecularMaterial;
@@ -25,12 +26,14 @@ uniform mat4 Projection;
 
 varying vec3 EyespaceNormal;
 varying vec3 Diffuse;
+varying vec2 TextureCoordOut;
 
 
 void main()
 {
     EyespaceNormal = NormalMatrix * Normal;
     Diffuse = DiffuseMaterial;
+    TextureCoordOut = TextureCoord;
 //    vec3 N = NormalMatrix * Normal;
 //    vec3 L = normalize(LightPosition);
 //    vec3 E = vec3(0, 0, 1);
