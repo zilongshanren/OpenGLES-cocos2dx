@@ -41,10 +41,12 @@ void HelloWorld::initialize()
     m_centerPoint = m_screenSize / 2;
     
     vector<ISurface*> surfaces(SurfaceCount);
-    auto path1 = FileUtils::getInstance()->fullPathForFilename("micronapalmv2.obj");
-    auto path2 = FileUtils::getInstance()->fullPathForFilename("Ninja.obj");
-    surfaces[0] = new ObjSurface(path1);
-    surfaces[1] = new ObjSurface(path2);
+//    auto path1 = FileUtils::getInstance()->fullPathForFilename("micronapalmv2.obj");
+//    auto path2 = FileUtils::getInstance()->fullPathForFilename("Ninja.obj");
+//    surfaces[0] = new ObjSurface(path1);
+//    surfaces[1] = new ObjSurface(path2);
+    surfaces[0] = new Cone(3, 1);
+    surfaces[1] = new Sphere(1.4f);
     surfaces[2] = new Torus(1.4, 0.3);
     surfaces[3] = new TrefoilKnot(1.8f);
     surfaces[4] = new KleinBottle(0.2f);

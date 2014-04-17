@@ -26,11 +26,11 @@ void main()
     highp float sf = max(0.0, dot(N,H));
     sf = pow(sf, Shininess);
     
-    if (df < 0.1) df = 0.0;
-    else if (df < 0.3) df = 0.3;
-    else if (df < 0.6) df = 0.6;
-    else df = 1.0;
-    sf = step(0.5, sf);
+//    if (df < 0.1) df = 0.0;
+//    else if (df < 0.3) df = 0.3;
+//    else if (df < 0.6) df = 0.6;
+//    else df = 1.0;
+//    sf = step(0.5, sf);
     
     lowp vec3 color = AmbientMaterial + df * Diffuse + sf * SpecularMaterial;
     
