@@ -154,7 +154,7 @@ bool HelloWorld::init()
     
    CHECK_GL_ERROR_DEBUG();
     
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
@@ -164,6 +164,8 @@ bool HelloWorld::init()
                  GL_RGBA,
                  GL_UNSIGNED_BYTE,
                  image->getData());
+    
+    glGenerateMipmap(GL_TEXTURE_2D);
     
     image->release();
     
@@ -318,7 +320,7 @@ void HelloWorld::rendering(const vector<Visual>& visuals)
         // Set the projection transform.
         //Since it's cocos2d-x, we don't need any projectionMatrix
         float h = 4.0f * size.y / size.x;
-        mat4 projectionMatrix = mat4::Frustum(-2, 2, -h / 2, h / 2, 5, 10);
+        mat4 projectionMatrix = mat4::Frustum(-2, 2, -h / 2, h / 2, 5, 30);
         m_uniforms.Projection = mShaderProgram->getUniformLocation("Projection");
         glUniformMatrix4fv(m_uniforms.Projection, 1, 0, projectionMatrix.Pointer());
         
