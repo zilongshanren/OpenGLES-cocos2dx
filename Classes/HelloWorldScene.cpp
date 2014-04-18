@@ -141,27 +141,27 @@ bool HelloWorld::init()
 
     m_positionSlot = mShaderProgram->getAttribLocation("a_position");
     //we must specify the renderingEngine
-    _textureID = TextureCache::getInstance()->addImage("Grid16.png")->getName();
+//    _textureID = TextureCache::getInstance()->addImage("Grid16.png")->getName();
     
-//    Image *image = new Image;
-//    auto imagePath = FileUtils::getInstance()->fullPathForFilename("Grid16.png");
-//    image->initWithImageFile(imagePath);
-//    
-//    glGenTextures(1, &_textureID);
-//    glActiveTexture(GL_TEXTURE0);
-//    glBindTexture(GL_TEXTURE_2D, _textureID);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//    
-//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
-//                 image->getWidth(),
-//                 image->getHeight(),
-//                 0,
-//                 GL_RGBA,
-//                 GL_UNSIGNED_BYTE,
-//                 image->getData());
-//    
-//    image->release();
+    Image *image = new Image;
+    auto imagePath = FileUtils::getInstance()->fullPathForFilename("Grid16.png");
+    image->initWithImageFile(imagePath);
+    
+    glGenTextures(1, &_textureID);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, _textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+                 image->getWidth(),
+                 image->getHeight(),
+                 0,
+                 GL_RGBA,
+                 GL_UNSIGNED_BYTE,
+                 image->getData());
+    
+    image->release();
     
     GLuint samplerLocation = glGetUniformLocation(mShaderProgram->getProgram(), "Sampler");
     glUniform1f(samplerLocation, 0);
@@ -238,8 +238,7 @@ void HelloWorld::onDraw()
     m_uniforms.NormalMatrix = glGetUniformLocation(program, "NormalMatrix");
     m_uniforms.LightPosition = glGetUniformLocation(program, "LightPosition");
 
-//    GL::bindTexture2D(_textureID);
-//    glBindTexture(GL_TEXTURE_2D, _textureID);
+    glBindTexture(GL_TEXTURE_2D, _textureID);
    
     
     //add your own draw code here
