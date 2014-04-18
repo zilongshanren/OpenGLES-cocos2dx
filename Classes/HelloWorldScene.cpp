@@ -58,7 +58,7 @@ void HelloWorld::initialize()
         
         // Create the VBO for the vertices.
         vector<float> vertices;
-        (*surface)->GenerateVertices(vertices, VertexFlagsNormals);
+        (*surface)->GenerateVertices(vertices, VertexFlagsNormals | VertexFlagsTexCoords);
         GLuint vertexBuffer;
         glGenBuffers(1, &vertexBuffer);
         glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -141,20 +141,30 @@ bool HelloWorld::init()
 
     m_positionSlot = mShaderProgram->getAttribLocation("a_position");
     //we must specify the renderingEngine
+    _textureID = TextureCache::getInstance()->addImage("Grid16.png")->getName();
     
+//    Image *image = new Image;
+//    auto imagePath = FileUtils::getInstance()->fullPathForFilename("Grid16.png");
+//    image->initWithImageFile(imagePath);
+//    
+//    glGenTextures(1, &_textureID);
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindTexture(GL_TEXTURE_2D, _textureID);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//    
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA,
+//                 image->getWidth(),
+//                 image->getHeight(),
+//                 0,
+//                 GL_RGBA,
+//                 GL_UNSIGNED_BYTE,
+//                 image->getData());
+//    
+//    image->release();
     
-    Image *image = new Image;
-    auto imagePath = FileUtils::getInstance()->fullPathForFilename("Grid16.png");
-    image->initWithImageFile(imagePath);
-    
-    glGenTextures(1, &_textureID);
-    glBindTexture(GL_TEXTURE_2D, _textureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image->getWidth(), image->getHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, image->getData());
-    
-    image->release();
+    GLuint samplerLocation = glGetUniformLocation(mShaderProgram->getProgram(), "Sampler");
+    glUniform1f(samplerLocation, 0);
     
     this->initialize();
 
@@ -227,24 +237,10 @@ void HelloWorld::onDraw()
     m_uniforms.Modelview = glGetUniformLocation(program, "Modelview");
     m_uniforms.NormalMatrix = glGetUniformLocation(program, "NormalMatrix");
     m_uniforms.LightPosition = glGetUniformLocation(program, "LightPosition");
-    
-    
-  
-    
-    glBindTexture(GL_TEXTURE_2D, _textureID);
-    GLuint textureLocation = glGetUniformLocation(program, "Sampler");
-    
-    glUniform1f(textureLocation, 0);
-    
 
-    
-    // Set up some default material parameters.
-  
-    // Initialize various state.
-    glEnableVertexAttribArray(m_attributes.Position);
-    glEnableVertexAttribArray(m_attributes.Normal);
-    glEnableVertexAttribArray(m_attributes.TextureCoord);
-    glEnable(GL_DEPTH_TEST);
+//    GL::bindTexture2D(_textureID);
+//    glBindTexture(GL_TEXTURE_2D, _textureID);
+   
     
     //add your own draw code here
     vector<Visual> visuals(SurfaceCount);
@@ -284,6 +280,8 @@ void HelloWorld::onDraw()
 void HelloWorld::rendering(const vector<Visual>& visuals)
 {
     glClearColor(0.5f, 0.5f, 0.5f, 1);
+    glEnable(GL_DEPTH_TEST);
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     vector<Visual>::const_iterator visual = visuals.begin();
@@ -295,6 +293,7 @@ void HelloWorld::rendering(const vector<Visual>& visuals)
         ivec2 size = visual->ViewportSize;
         ivec2 lowerLeft = visual->LowerLeft;
         glViewport(lowerLeft.x, lowerLeft.y, size.x, size.y);
+        
         
        
         
@@ -332,10 +331,7 @@ void HelloWorld::rendering(const vector<Visual>& visuals)
         
         vec3 color = visual->Color * 0.75f;
         glVertexAttrib4f(m_attributes.Diffuse, color.x, color.y, color.z, 1);
-        // Draw the surface.
-        int stride = 2 * sizeof(vec3);
-        const GLvoid* offset = (const GLvoid*) sizeof(vec3);
-        const GLvoid* texOffset = (const GLvoid*) (2 * sizeof(vec3));
+        
         
         GLint position = m_attributes.Position;
         GLint normal = m_attributes.Normal;
@@ -343,14 +339,26 @@ void HelloWorld::rendering(const vector<Visual>& visuals)
         
         
         const Drawable& drawable = m_drawables[visualIndex];
-        glBindBuffer(GL_ARRAY_BUFFER, drawable.VertexBuffer);
         
+        // Draw the surface.
+        int stride = sizeof(vec3) + sizeof(vec3) + sizeof(vec2);
+        const GLvoid* normalOffset = (const GLvoid*) sizeof(vec3);
+        const GLvoid* texOffset = (const GLvoid*) (2 * sizeof(vec3));
+        
+        // Initialize various state.
+        glEnableVertexAttribArray(m_attributes.Position);
+        glEnableVertexAttribArray(m_attributes.Normal);
+        glEnableVertexAttribArray(m_attributes.TextureCoord);
+        
+        glBindBuffer(GL_ARRAY_BUFFER, drawable.VertexBuffer);
         glVertexAttribPointer(position, 3, GL_FLOAT,GL_FALSE, stride, 0);
-        glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE,stride, offset);
+        glVertexAttribPointer(normal, 3, GL_FLOAT, GL_FALSE,stride, normalOffset);
         glVertexAttribPointer(texture, 2, GL_FLOAT, GL_FALSE, stride, texOffset);
+        
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, drawable.IndexBuffer);
         
         glDrawElements(GL_TRIANGLES, drawable.IndexCount, GL_UNSIGNED_SHORT, 0);
+        
         
         drawCall++;
         drawIndices += drawable.IndexCount;

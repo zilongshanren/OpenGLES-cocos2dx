@@ -38,6 +38,6 @@ void main()
     
     lowp vec3 color = AmbientMaterial + df * Diffuse + sf * SpecularMaterial;
     
-    gl_FragColor = texture2D(Sampler, TextureCoordOut) * vec4(color,1.0);
+    gl_FragColor = texture2D(Sampler, TextureCoordOut) * vec4(color,1.0) ;
 }
 
