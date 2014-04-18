@@ -29,6 +29,56 @@
 
 @implementation RootViewController
 
+@synthesize photo = _photo;
+
+-(void) takePhoto
+{
+    UIImagePickerController *picker= [[UIImagePickerController alloc] init];
+    picker.delegate = self;
+    
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera])
+    {
+        picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+        
+    }
+    else
+    {
+        NSLog(@"模拟器无法打开相机");
+    }
+    [self presentViewController:picker animated:YES completion:nil];
+}
+
+//拍照
+- (void)imagePickerController:(UIImagePickerController *)picker
+didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    NSLog(@"拍照");
+    UIImage *originImage = [info objectForKey:UIImagePickerControllerOriginalImage];
+    //保存原图到相册
+    UIImageWriteToSavedPhotosAlbum(originImage, nil, nil, nil);
+    
+    //generate a sprite
+    _photo = originImage;
+    
+    
+    [picker dismissViewControllerAnimated:false completion:nil];
+    [self.view removeFromSuperview];
+    
+    
+}
+//取消
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
+    NSLog(@"取消");
+    
+    [picker dismissViewControllerAnimated:false completion:nil];
+    [self.view removeFromSuperview];
+    
+    
+}
+
+
+
+
 /*
  // The designated initializer.  Override if you create the controller programmatically and want to perform customization that is not appropriate for viewDidLoad.
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {

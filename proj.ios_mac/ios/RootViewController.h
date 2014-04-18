@@ -25,10 +25,13 @@
 
 #import <UIKit/UIKit.h>
 
-
-@interface RootViewController : UIViewController {
+//use root view controller to take photo
+@interface RootViewController : UIViewController<UIImagePickerControllerDelegate,UINavigationControllerDelegate> {
 
 }
+@property(assign)UIImage* photo;
+
 - (BOOL) prefersStatusBarHidden;
+- (void) takePhoto;
 
 @end
