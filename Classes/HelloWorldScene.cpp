@@ -143,6 +143,7 @@ bool HelloWorld::init()
     //we must specify the renderingEngine
 //    _textureID = TextureCache::getInstance()->addImage("Grid16.png")->getName();
     
+   CHECK_GL_ERROR_DEBUG();
     Image *image = new Image;
     auto imagePath = FileUtils::getInstance()->fullPathForFilename("Grid16.png");
     image->initWithImageFile(imagePath);
@@ -150,6 +151,9 @@ bool HelloWorld::init()
     glGenTextures(1, &_textureID);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, _textureID);
+    
+   CHECK_GL_ERROR_DEBUG();
+    
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     
@@ -163,15 +167,17 @@ bool HelloWorld::init()
     
     image->release();
     
-    GLuint samplerLocation = glGetUniformLocation(mShaderProgram->getProgram(), "Sampler");
-    glUniform1f(samplerLocation, 0);
+   CHECK_GL_ERROR_DEBUG();
+    GLint samplerLocation = glGetUniformLocation(mShaderProgram->getProgram(), "Sampler");
+    //this must call glUniform1i  not glUniform1f
+    glUniform1i(samplerLocation, 0);
     
     this->initialize();
 
     
     this->schedule(schedule_selector(HelloWorld::updateAnimation), 1.0 / 60);
     
-    
+   CHECK_GL_ERROR_DEBUG();
     
     return true;
 }
@@ -223,6 +229,9 @@ void HelloWorld::onDraw()
     
     mShaderProgram->use();
     mShaderProgram->setUniformsForBuiltins();
+    
+    CHECK_GL_ERROR_DEBUG();
+    
     GLuint program = mShaderProgram->getProgram();
     m_attributes.Position = glGetAttribLocation(program, "Position");
     m_attributes.Normal = glGetAttribLocation(program, "Normal");
@@ -240,6 +249,8 @@ void HelloWorld::onDraw()
 
     glBindTexture(GL_TEXTURE_2D, _textureID);
    
+    
+    CHECK_GL_ERROR_DEBUG();
     
     //add your own draw code here
     vector<Visual> visuals(SurfaceCount);
