@@ -1,6 +1,7 @@
 #include "HelloWorldScene.h"
 #include "ParametricEquations.hpp"
 #include "ObjSurface.hpp"
+#include "RootViewController.h"
 USING_NS_CC;
 
 Scene* HelloWorld::createScene()
@@ -34,11 +35,12 @@ bool HelloWorld::init()
     auto winSize = Director::getInstance()->getVisibleSize();
     
     auto label = Label::create("Hello Triangle!", "Arial", 40);
-    label->setPosition(Point(winSize.width/2, winSize.height/2));
-    label->setVisible(false);
+    label->setPosition(cocos2d::Point(winSize.width/2, winSize.height/2));
     this->addChild(label);
 
  
+    this->setTouchEnabled(true);
+    this->setTouchMode(Touch::DispatchMode::ONE_BY_ONE);
     
    CHECK_GL_ERROR_DEBUG();
     
@@ -55,7 +57,10 @@ void HelloWorld::draw(cocos2d::Renderer *renderer, const kmMat4 &transform, bool
 
 bool HelloWorld::onTouchBegan(cocos2d::Touch *touch, cocos2d::Event *unused_event)
 {
+    [(RootViewController*)[UIApplication sharedApplication].keyWindow.rootViewController  takePhoto];
 
+   
+    
     return true;
 }
 
@@ -71,6 +76,8 @@ void HelloWorld::onTouchCancelled(cocos2d::Touch *touch, cocos2d::Event *unused_
 
 void HelloWorld::onTouchEnded(cocos2d::Touch *touch, cocos2d::Event *unused_event)
 {
-   
+//    Image *im = new Image;
+//    im->initWithImageFile("");
+
 }
 

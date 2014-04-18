@@ -61,8 +61,28 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info
     _photo = originImage;
     
     
+    cocos2d::Image *imf =new cocos2d::Image();
+    NSData *imgData = UIImagePNGRepresentation(self.photo);
+    NSUInteger len = [imgData length];
+    Byte *byteData = (Byte*)malloc(len);
+    memcpy(byteData, [imgData bytes], len);
+    
+    imf->initWithImageData(byteData,imgData.length);
+    imf->autorelease();
+    
+    cocos2d::Texture2D* pTexture = new cocos2d::Texture2D();
+    pTexture->initWithImage(imf);
+    pTexture->autorelease();
+    
+    cocos2d::Sprite *sprite = cocos2d::Sprite::createWithTexture(pTexture);
+    
+    using namespace cocos2d;
+    Scene *scene =  Director::getInstance()->getRunningScene();
+    auto size = Director::getInstance()->getVisibleSize();
+    sprite->setPosition(cocos2d::Point(size.width/2, size.height/2));
+    scene->addChild(sprite, 1024);
+    
     [picker dismissViewControllerAnimated:false completion:nil];
-    [self.view removeFromSuperview];
     
     
 }
@@ -70,9 +90,7 @@ didFinishPickingMediaWithInfo:(NSDictionary *)info
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker {
     NSLog(@"取消");
     
-    [picker dismissViewControllerAnimated:false completion:nil];
-    [self.view removeFromSuperview];
-    
+    [picker dismissViewControllerAnimated:false completion:nil];    
     
 }
 
