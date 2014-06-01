@@ -26,12 +26,11 @@ THE SOFTWARE.
 ****************************************************************************/
 #include "CCTileMapAtlas.h"
 #include "platform/CCFileUtils.h"
-#include "CCTextureAtlas.h"
-#include "TGAlib.h"
-#include "ccConfig.h"
-#include "CCInteger.h"
-#include "CCDirector.h"
-#include "CCString.h"
+#include "renderer/CCTextureAtlas.h"
+#include "base/TGAlib.h"
+#include "base/ccConfig.h"
+#include "base/CCDirector.h"
+#include "deprecated/CCString.h"
 #include <sstream>
 
 NS_CC_BEGIN
@@ -126,7 +125,7 @@ void TileMapAtlas::loadTGAfile(const std::string& file)
 }
 
 // TileMapAtlas - Atlas generation / updates
-void TileMapAtlas::setTile(const Color3B& tile, const Point& position)
+void TileMapAtlas::setTile(const Color3B& tile, const Vec2& position)
 {
     CCASSERT(_TGAInfo != nullptr, "tgaInfo must not be nil");
     CCASSERT(position.x < _TGAInfo->width, "Invalid position.x");
@@ -152,7 +151,7 @@ void TileMapAtlas::setTile(const Color3B& tile, const Point& position)
     }    
 }
 
-Color3B TileMapAtlas::getTileAt(const Point& position) const
+Color3B TileMapAtlas::getTileAt(const Vec2& position) const
 {
     CCASSERT( _TGAInfo != nullptr, "tgaInfo must not be nil");
     CCASSERT( position.x < _TGAInfo->width, "Invalid position.x");
@@ -164,7 +163,7 @@ Color3B TileMapAtlas::getTileAt(const Point& position) const
     return value;    
 }
 
-void TileMapAtlas::updateAtlasValueAt(const Point& pos, const Color3B& value, int index)
+void TileMapAtlas::updateAtlasValueAt(const Vec2& pos, const Color3B& value, int index)
 {
     CCASSERT( index >= 0 && index < _textureAtlas->getCapacity(), "updateAtlasValueAt: Invalid index");
 
@@ -245,7 +244,7 @@ void TileMapAtlas::updateAtlasValues()
 
                 if( value.r != 0 )
                 {
-                    this->updateAtlasValueAt(Point(x,y), value, total);
+                    this->updateAtlasValueAt(Vec2(x,y), value, total);
 
                     std::string key = StringUtils::toString(x) + "," + StringUtils::toString(y);
                     _posToAtlasIndex[key] = total;

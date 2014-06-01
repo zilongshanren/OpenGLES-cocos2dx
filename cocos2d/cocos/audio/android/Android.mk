@@ -7,17 +7,13 @@ LOCAL_MODULE_FILENAME := libcocosdenshion
 
 LOCAL_SRC_FILES := cddSimpleAudioEngine.cpp \
                    ccdandroidUtils.cpp \
-                   jni/cddandroidAndroidJavaEngine.cpp \
-                   opensl/cddandroidOpenSLEngine.cpp
+                   jni/cddandroidAndroidJavaEngine.cpp
 
 LOCAL_EXPORT_C_INCLUDES := $(LOCAL_PATH)/../include
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../include \
-                    $(LOCAL_PATH)/../../math/kazmath \
-                    $(LOCAL_PATH)/../../2d \
-                    $(LOCAL_PATH)/../../2d/platform/android \
-                    $(LOCAL_PATH)/../../base \
-                    $(LOCAL_PATH)/../../physics
+                    $(LOCAL_PATH)/../.. \
+                    $(LOCAL_PATH)/../../platform/android
 
 LOCAL_CFLAGS += -Wno-psabi
 LOCAL_EXPORT_CFLAGS += -Wno-psabi

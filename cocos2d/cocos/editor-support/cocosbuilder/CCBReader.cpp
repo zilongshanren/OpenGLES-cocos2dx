@@ -1,11 +1,11 @@
 #include <ctype.h>
 #include <algorithm>
 
-#include "CCDirector.h"
+#include "base/CCDirector.h"
 #include "platform/CCFileUtils.h"
-#include "CCScene.h"
-#include "CCTextureCache.h"
-#include "CCSpriteFrameCache.h"
+#include "2d/CCScene.h"
+#include "2d/CCSpriteFrameCache.h"
+#include "renderer/CCTextureCache.h"
 
 #include "CCBReader.h"
 #include "CCNodeLoader.h"
@@ -16,14 +16,12 @@
 #include "CCBAnimationManager.h"
 #include "CCBSequenceProperty.h"
 #include "CCBKeyframe.h"
+#include <sstream>
 
-
-
-using namespace std;
 using namespace cocos2d;
 using namespace cocos2d::extension;
 
-namespace cocosbuilder {;
+namespace cocosbuilder {
 
 /*************************************************************************
  Implementation of CCBFile
@@ -182,12 +180,12 @@ CCBSelectorResolver * CCBReader::getCCBSelectorResolver() {
     return this->_CCBSelectorResolver;
 }
 
-set<string>* CCBReader::getAnimatedProperties()
+std::set<std::string>* CCBReader::getAnimatedProperties()
 {
     return _animatedProps;
 }
 
-set<string>& CCBReader::getLoadedSpriteSheet()
+std::set<std::string>& CCBReader::getLoadedSpriteSheet()
 {
     return _loadedSpriteSheets;
 }
@@ -551,7 +549,7 @@ Node * CCBReader::readNodeGraph(Node * pParent)
 
     // Read animated properties
     std::unordered_map<int, Map<std::string, CCBSequenceProperty*>> seqs;
-    _animatedProps = new set<string>();
+    _animatedProps = new std::set<std::string>();
     
     int numSequence = readInt(false);
     for (int i = 0; i < numSequence; ++i)

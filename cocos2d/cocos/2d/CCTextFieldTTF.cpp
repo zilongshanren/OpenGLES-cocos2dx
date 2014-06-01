@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 #include "CCTextFieldTTF.h"
 
-#include "CCDirector.h"
+#include "base/CCDirector.h"
 #include "CCGLView.h"
 
 NS_CC_BEGIN
@@ -111,8 +111,8 @@ bool TextFieldTTF::initWithPlaceHolder(const std::string& placeholder, const Siz
 {
     _placeHolder = placeholder;
     setDimensions(dimensions.width,dimensions.height);
-    setFontName(fontName);
-    setFontSize(fontSize);
+    setSystemFontName(fontName);
+    setSystemFontSize(fontSize);
     setAlignment(alignment,TextVAlignment::CENTER);
     Label::setTextColor(_colorSpaceHolder);
     Label::setString(_placeHolder);
@@ -122,8 +122,8 @@ bool TextFieldTTF::initWithPlaceHolder(const std::string& placeholder, const Siz
 bool TextFieldTTF::initWithPlaceHolder(const std::string& placeholder, const std::string& fontName, float fontSize)
 {
     _placeHolder = std::string(placeholder);
-    setFontName(fontName);
-    setFontSize(fontSize);
+    setSystemFontName(fontName);
+    setSystemFontSize(fontSize);
     Label::setTextColor(_colorSpaceHolder);
     Label::setString(_placeHolder);
 
@@ -263,7 +263,7 @@ void TextFieldTTF::setTextColor(const Color4B &color)
     Label::setTextColor(_colorText);
 }
 
-void TextFieldTTF::visit(Renderer *renderer, const kmMat4 &parentTransform, bool parentTransformUpdated)
+void TextFieldTTF::visit(Renderer *renderer, const Mat4 &parentTransform, bool parentTransformUpdated)
 {
     if (_delegate && _delegate->onVisit(this,renderer,parentTransform,parentTransformUpdated))
     {

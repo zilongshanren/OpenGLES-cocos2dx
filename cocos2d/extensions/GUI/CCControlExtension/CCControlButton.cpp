@@ -27,9 +27,9 @@
 
 #include "CCControlButton.h"
 #include "CCScale9Sprite.h"
-#include "CCLabel.h"
-#include "CCAction.h"
-#include "CCActionInterval.h"
+#include "2d/CCLabel.h"
+#include "2d/CCAction.h"
+#include "2d/CCActionInterval.h"
 
 using namespace std;
 
@@ -64,7 +64,7 @@ ControlButton::~ControlButton()
 
 bool ControlButton::init()
 {
-    return this->initWithLabelAndBackgroundSprite(Label::create("", "Helvetica", 12), Scale9Sprite::create());
+    return this->initWithLabelAndBackgroundSprite(Label::createWithSystemFont("", "Helvetica", 12), Scale9Sprite::create());
 }
 
 bool ControlButton::initWithLabelAndBackgroundSprite(Node* node, Scale9Sprite* backgroundSprite)
@@ -89,7 +89,7 @@ bool ControlButton::initWithLabelAndBackgroundSprite(Node* node, Scale9Sprite* b
         
         // Set the default anchor point
         ignoreAnchorPointForPosition(false);
-        setAnchorPoint(Point::ANCHOR_MIDDLE);
+        setAnchorPoint(Vec2::ANCHOR_MIDDLE);
         
         // Set the nodes
         setTitleLabel(node);
@@ -107,7 +107,7 @@ bool ControlButton::initWithLabelAndBackgroundSprite(Node* node, Scale9Sprite* b
         setTitleLabelForState(node, Control::State::NORMAL);
         setBackgroundSpriteForState(backgroundSprite, Control::State::NORMAL);
         
-        setLabelAnchorPoint(Point::ANCHOR_MIDDLE);
+        setLabelAnchorPoint(Vec2::ANCHOR_MIDDLE);
 
         // Layout update
         needsLayout();
@@ -131,8 +131,7 @@ ControlButton* ControlButton::create(Node* label, Scale9Sprite* backgroundSprite
 
 bool ControlButton::initWithTitleAndFontNameAndFontSize(const std::string& title, const std::string& fontName, float fontSize)
 {
-    Label *label = Label::create(title, fontName, fontSize);
-    return initWithLabelAndBackgroundSprite(label, Scale9Sprite::create());
+    return initWithLabelAndBackgroundSprite(Label::createWithSystemFont(title, fontName, fontSize), Scale9Sprite::create());
 }
 
 ControlButton* ControlButton::create(const std::string& title, const std::string& fontName, float fontSize)
@@ -145,7 +144,7 @@ ControlButton* ControlButton::create(const std::string& title, const std::string
 
 bool ControlButton::initWithBackgroundSprite(Scale9Sprite* sprite)
 {
-    Label *label = Label::create("", "Arial", 30);//
+    Label *label = Label::createWithSystemFont("", "Arial", 30);//
     return initWithLabelAndBackgroundSprite(label, sprite);
 }
 
@@ -251,12 +250,12 @@ bool ControlButton::doesAdjustBackgroundImage()
     return _doesAdjustBackgroundImage;
 }
 
-const Point& ControlButton::getLabelAnchorPoint() const
+const Vec2& ControlButton::getLabelAnchorPoint() const
 {
     return this->_labelAnchorPoint;
 }
 
-void ControlButton::setLabelAnchorPoint(const Point& labelAnchorPoint)
+void ControlButton::setLabelAnchorPoint(const Vec2& labelAnchorPoint)
 {
     this->_labelAnchorPoint = labelAnchorPoint;
     if (_titleLabel != nullptr)
@@ -349,7 +348,7 @@ void ControlButton::setTitleLabelForState(Node* titleLabel, State state)
 
     _titleLabelDispatchTable.insert((int)state, titleLabel);
     titleLabel->setVisible(false);
-    titleLabel->setAnchorPoint(Point(0.5f, 0.5f));
+    titleLabel->setAnchorPoint(Vec2(0.5f, 0.5f));
     addChild(titleLabel, 1);
 
     // If the current state if equal to the given state we update the layout
@@ -359,10 +358,9 @@ void ControlButton::setTitleLabelForState(Node* titleLabel, State state)
     }
 }
 
-void ControlButton::setTitleTTFForState(const std::string& fntFile, State state)
+void ControlButton::setTitleTTFForState(const std::string& fontName, State state)
 {
-    std::string title = this->getTitleForState(state);
-    this->setTitleLabelForState(Label::create(title, fntFile, 12), state);
+    this->setTitleLabelForState(Label::createWithSystemFont(getTitleForState(state), fontName, 12), state);
 }
 
 const std::string& ControlButton::getTitleTTFForState(State state)
@@ -371,7 +369,7 @@ const std::string& ControlButton::getTitleTTFForState(State state)
     Label* labelTTF = dynamic_cast<Label*>(label);
     if(labelTTF != 0)
     {
-        return labelTTF->getFontName();
+        return labelTTF->getSystemFontName();
     }
 
     static std::string ret("");
@@ -386,7 +384,7 @@ void ControlButton::setTitleTTFSizeForState(float size, State state)
         Label* labelTTF = dynamic_cast<Label*>(label);
         if(labelTTF != 0)
         {
-            return labelTTF->setFontSize(size);
+            return labelTTF->setSystemFontSize(size);
         }
     }
 }
@@ -397,7 +395,7 @@ float ControlButton::getTitleTTFSizeForState(State state)
     Label* labelTTF = dynamic_cast<Label*>(label);
     if(labelTTF != 0)
     {
-        return labelTTF->getFontSize();
+        return labelTTF->getSystemFontSize();
     }
     else
     {
@@ -449,7 +447,7 @@ void ControlButton::setBackgroundSpriteForState(Scale9Sprite* sprite, State stat
 
     _backgroundSpriteDispatchTable.insert((int)state, sprite);
     sprite->setVisible(false);
-    sprite->setAnchorPoint(Point(0.5f, 0.5f));
+    sprite->setAnchorPoint(Vec2(0.5f, 0.5f));
     addChild(sprite);
 
     if (this->_preferredSize.width != 0 || this->_preferredSize.height != 0)
@@ -511,14 +509,14 @@ void ControlButton::needsLayout()
     }
     if (_titleLabel != nullptr)
     {
-        _titleLabel->setPosition(Point (getContentSize().width / 2, getContentSize().height / 2));
+        _titleLabel->setPosition(Vec2 (getContentSize().width / 2, getContentSize().height / 2));
     }
     
     // Update the background sprite
     this->setBackgroundSprite(this->getBackgroundSpriteForState(_state));
     if (_backgroundSprite != nullptr)
     {
-        _backgroundSprite->setPosition(Point (getContentSize().width / 2, getContentSize().height / 2));
+        _backgroundSprite->setPosition(Vec2 (getContentSize().width / 2, getContentSize().height / 2));
     }
    
     // Get the title label size
@@ -573,14 +571,14 @@ void ControlButton::needsLayout()
     
     if (_titleLabel != nullptr)
     {
-        _titleLabel->setPosition(Point(getContentSize().width/2, getContentSize().height/2));
+        _titleLabel->setPosition(Vec2(getContentSize().width/2, getContentSize().height/2));
         // Make visible the background and the label
         _titleLabel->setVisible(true);
     }
   
     if (_backgroundSprite != nullptr)
     {
-        _backgroundSprite->setPosition(Point(getContentSize().width/2, getContentSize().height/2));
+        _backgroundSprite->setPosition(Vec2(getContentSize().width/2, getContentSize().height/2));
         _backgroundSprite->setVisible(true);   
     }   
 }
@@ -658,30 +656,32 @@ void ControlButton::onTouchEnded(Touch *pTouch, Event *pEvent)
 
 void ControlButton::setOpacity(GLubyte opacity)
 {
-    // XXX fixed me if not correct
     Control::setOpacity(opacity);
-//    _opacity = opacity;
-//    
-//    Ref* child;
-//    Array* children=getChildren();
-//    CCARRAY_FOREACH(children, child)
-//    {
-//        RGBAProtocol* pNode = dynamic_cast<RGBAProtocol*>(child);        
-//        if (pNode)
-//        {
-//            pNode->setOpacity(opacity);
-//        }
-//    }
     
     for (auto iter = _backgroundSpriteDispatchTable.begin(); iter != _backgroundSpriteDispatchTable.end(); ++iter)
     {
         iter->second->setOpacity(opacity);
     }
+
+    for (auto iter = _titleLabelDispatchTable.begin(); iter != _titleLabelDispatchTable.end(); ++iter)
+    {
+        iter->second->setOpacity(opacity);
+    }
 }
 
-GLubyte ControlButton::getOpacity() const
+void ControlButton::updateDisplayedOpacity(GLubyte parentOpacity)
 {
-    return _realOpacity;
+    Control::updateDisplayedOpacity(parentOpacity);
+
+    for (auto iter = _backgroundSpriteDispatchTable.begin(); iter != _backgroundSpriteDispatchTable.end(); ++iter)
+    {
+        iter->second->updateDisplayedOpacity(parentOpacity);
+    }
+
+    for (auto iter = _titleLabelDispatchTable.begin(); iter != _titleLabelDispatchTable.end(); ++iter)
+    {
+        iter->second->updateDisplayedOpacity(parentOpacity);
+    }
 }
 
 void ControlButton::setColor(const Color3B & color)
@@ -692,11 +692,26 @@ void ControlButton::setColor(const Color3B & color)
     {
         iter->second->setColor(color);
     }
+
+    for (auto iter = _titleLabelDispatchTable.begin(); iter != _titleLabelDispatchTable.end(); ++iter)
+    {
+        iter->second->setColor(color);
+    }
 }
 
-const Color3B& ControlButton::getColor() const
+void ControlButton::updateDisplayedColor(const Color3B& parentColor)
 {
-	return _realColor;
+    Control::updateDisplayedColor(parentColor);
+
+    for (auto iter = _backgroundSpriteDispatchTable.begin(); iter != _backgroundSpriteDispatchTable.end(); ++iter)
+    {
+        iter->second->updateDisplayedColor(parentColor);
+    }
+
+    for (auto iter = _titleLabelDispatchTable.begin(); iter != _titleLabelDispatchTable.end(); ++iter)
+    {
+        iter->second->updateDisplayedColor(parentColor);
+    }
 }
 
 void ControlButton::onTouchCancelled(Touch *pTouch, Event *pEvent)

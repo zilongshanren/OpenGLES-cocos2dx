@@ -28,19 +28,17 @@ THE SOFTWARE.
 #ifndef __SPRITE_NODE_CCSPRITE_H__
 #define __SPRITE_NODE_CCSPRITE_H__
 
-#include "CCNode.h"
-#include "CCProtocols.h"
-#include "CCTextureAtlas.h"
-#include "ccTypes.h"
-#include "CCDictionary.h"
+#include "2d/CCNode.h"
+#include "base/CCProtocols.h"
+#include "renderer/CCTextureAtlas.h"
+#include "base/ccTypes.h"
 #include <string>
 #ifdef EMSCRIPTEN
 #include "CCGLBufferedNode.h"
 #endif // EMSCRIPTEN
-#include "CCPhysicsBody.h"
+#include "physics/CCPhysicsBody.h"
 #include "renderer/CCQuadCommand.h"
 #include "renderer/CCCustomCommand.h"
-#include "kazmath/kazmath.h"
 
 NS_CC_BEGIN
 
@@ -48,7 +46,6 @@ class SpriteBatchNode;
 class SpriteFrame;
 class Animation;
 class Rect;
-class Point;
 class Size;
 class Texture2D;
 struct transformValues_;
@@ -320,7 +317,7 @@ public:
     /**
      * Gets the offset position of the sprite. Calculated automatically by editors like Zwoptex.
      */
-    inline const Point& getOffsetPosition(void) const { return _offsetPosition; }
+    inline const Vec2& getOffsetPosition(void) const { return _offsetPosition; }
 
 
     /**
@@ -405,7 +402,7 @@ public:
     * @js  NA
     * @lua NA
     */
-    virtual void setPosition(const Point& pos) override;
+    virtual void setPosition(const Vec2& pos) override;
     virtual void setPosition(float x, float y) override;
     virtual void setRotation(float rotation) override;
     virtual void setRotationSkewX(float rotationX) override;
@@ -420,10 +417,10 @@ public:
     virtual void sortAllChildren() override;
     virtual void setScale(float scale) override;
     virtual void setPositionZ(float positionZ) override;
-    virtual void setAnchorPoint(const Point& anchor) override;
+    virtual void setAnchorPoint(const Vec2& anchor) override;
     virtual void ignoreAnchorPointForPosition(bool value) override;
     virtual void setVisible(bool bVisible) override;
-    virtual void draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated) override;
+    virtual void draw(Renderer *renderer, const Mat4 &transform, bool transformUpdated) override;
     virtual void setOpacityModifyRGB(bool modify) override;
     virtual bool isOpacityModifyRGB(void) const override;
     /// @}
@@ -528,8 +525,6 @@ protected:
     virtual void setReorderChildDirtyRecursively(void);
     virtual void setDirtyRecursively(bool bValue);
 
-    bool isInsideBounds() const;
-
     //
     // Data used when the sprite is rendered using a SpriteSheet
     //
@@ -540,7 +535,7 @@ protected:
     bool                _dirty;             /// Whether the sprite needs to be updated
     bool                _recursiveDirty;    /// Whether all of the sprite's children needs to be updated
     bool                _shouldBeHidden;    /// should not be drawn because one of the ancestors is not visible
-    kmMat4              _transformToBatch;
+    Mat4              _transformToBatch;
 
     //
     // Data used when the sprite is self-rendered
@@ -561,8 +556,8 @@ protected:
     bool   _rectRotated;                    /// Whether the texture is rotated
 
     // Offset Position (used by Zwoptex)
-    Point _offsetPosition;
-    Point _unflippedOffsetPositionFromCenter;
+    Vec2 _offsetPosition;
+    Vec2 _unflippedOffsetPositionFromCenter;
 
     // vertex coords, texture coords and color info
     V3F_C4B_T2F_Quad _quad;
@@ -575,7 +570,6 @@ protected:
     bool _flippedY;                         /// Whether the sprite is flipped vertically or not
 
     bool _insideBounds;                     /// whether or not the sprite was inside bounds the previous frame
-
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(Sprite);
 };

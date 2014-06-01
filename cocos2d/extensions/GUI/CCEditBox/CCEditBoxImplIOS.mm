@@ -68,12 +68,11 @@ static const int CC_EDIT_BOX_PADDING = 5;
 {
     self = [super init];
     
-    do
+    if (self)
     {
-        if (self == nil) break;
         editState_ = NO;
         self.textField = [[[CCCustomUITextField alloc] initWithFrame: frameRect] autorelease];
-        if (!textField_) break;
+
         [textField_ setTextColor:[UIColor whiteColor]];
         textField_.font = [UIFont systemFontOfSize:frameRect.size.height*2/3]; //TODO need to delete hard code here.
 		textField_.contentVerticalAlignment = UIControlContentVerticalAlignmentCenter;
@@ -84,13 +83,9 @@ static const int CC_EDIT_BOX_PADDING = 5;
 		textField_.returnKeyType = UIReturnKeyDefault;
         [textField_ addTarget:self action:@selector(textChanged) forControlEvents:UIControlEventEditingChanged];
         self.editBox = editBox;
-        
-		
-        
-        return self;
-    }while(0);
+    }
     
-    return nil;
+    return self;
 }
 
 -(void) doAnimationWhenKeyboardMoveWithDuration:(float)duration distance:(float)distance
@@ -201,8 +196,8 @@ static const int CC_EDIT_BOX_PADDING = 5;
         cocos2d::CommonScriptData data(pEditBox->getScriptEditBoxHandler(), "ended",pEditBox);
         cocos2d::ScriptEvent event(cocos2d::kCommonEvent,(void*)&data);
         cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
-        memset(data.eventName,0,64*sizeof(char));
-        strncpy(data.eventName,"return",64);
+        memset(data.eventName, 0, sizeof(data.eventName));
+        strncpy(data.eventName, "return", sizeof(data.eventName));
         event.data = (void*)&data;
         cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
     }
@@ -273,10 +268,10 @@ EditBoxImpl* __createSystemEditBox(EditBox* pEditBox)
 
 EditBoxImplIOS::EditBoxImplIOS(EditBox* pEditText)
 : EditBoxImpl(pEditText)
-, _label(NULL)
-, _labelPlaceHolder(NULL)
-, _anchorPoint(Point(0.5f, 0.5f))
-, _systemControl(NULL)
+, _label(nullptr)
+, _labelPlaceHolder(nullptr)
+, _anchorPoint(Vec2(0.5f, 0.5f))
+, _systemControl(nullptr)
 , _maxTextLength(-1)
 {
     auto view = cocos2d::Director::getInstance()->getOpenGLView();
@@ -328,14 +323,14 @@ void EditBoxImplIOS::initInactiveLabels(const Size& size)
 	const char* pDefaultFontName = [[_systemControl.textField.font fontName] UTF8String];
 
 	_label = Label::create();
-    _label->setAnchorPoint(Point(0, 0.5f));
+    _label->setAnchorPoint(Vec2(0, 0.5f));
     _label->setColor(Color3B::WHITE);
     _label->setVisible(false);
     _editBox->addChild(_label, kLabelZOrder);
 	
     _labelPlaceHolder = Label::create();
 	// align the text vertically center
-    _labelPlaceHolder->setAnchorPoint(Point(0, 0.5f));
+    _labelPlaceHolder->setAnchorPoint(Vec2(0, 0.5f));
     _labelPlaceHolder->setColor(Color3B::GRAY);
     _editBox->addChild(_labelPlaceHolder, kLabelZOrder);
     
@@ -345,8 +340,8 @@ void EditBoxImplIOS::initInactiveLabels(const Size& size)
 
 void EditBoxImplIOS::placeInactiveLabels()
 {
-    _label->setPosition(Point(CC_EDIT_BOX_PADDING, _contentSize.height / 2.0f));
-    _labelPlaceHolder->setPosition(Point(CC_EDIT_BOX_PADDING, _contentSize.height / 2.0f));
+    _label->setPosition(Vec2(CC_EDIT_BOX_PADDING, _contentSize.height / 2.0f));
+    _labelPlaceHolder->setPosition(Vec2(CC_EDIT_BOX_PADDING, _contentSize.height / 2.0f));
 }
 
 void EditBoxImplIOS::setInactiveText(const char* pText)
@@ -395,10 +390,10 @@ void EditBoxImplIOS::setFont(const char* pFontName, int fontSize)
 		[_systemControl.textField setFont:textFont];
     }
 
-	_label->setFontName(pFontName);
-	_label->setFontSize(fontSize);
-	_labelPlaceHolder->setFontName(pFontName);
-	_labelPlaceHolder->setFontSize(fontSize);
+	_label->setSystemFontName(pFontName);
+	_label->setSystemFontSize(fontSize);
+	_labelPlaceHolder->setSystemFontName(pFontName);
+	_labelPlaceHolder->setSystemFontSize(fontSize);
 }
 
 void EditBoxImplIOS::setFontColor(const Color3B& color)
@@ -555,15 +550,15 @@ void EditBoxImplIOS::setPlaceHolder(const char* pText)
 	_labelPlaceHolder->setString(pText);
 }
 
-static CGPoint convertDesignCoordToScreenCoord(const Point& designCoord, bool bInRetinaMode)
+static CGPoint convertDesignCoordToScreenCoord(const Vec2& designCoord, bool bInRetinaMode)
 {
     auto glview = cocos2d::Director::getInstance()->getOpenGLView();
     CCEAGLView *eaglview = (CCEAGLView *) glview->getEAGLView();
 
     float viewH = (float)[eaglview getHeight];
     
-    Point visiblePos = Point(designCoord.x * glview->getScaleX(), designCoord.y * glview->getScaleY());
-    Point screenGLPos = visiblePos + glview->getViewPortRect().origin;
+    Vec2 visiblePos = Vec2(designCoord.x * glview->getScaleX(), designCoord.y * glview->getScaleY());
+    Vec2 screenGLPos = visiblePos + glview->getViewPortRect().origin;
     
     CGPoint screenPos = CGPointMake(screenGLPos.x, viewH - screenGLPos.y);
     
@@ -576,7 +571,7 @@ static CGPoint convertDesignCoordToScreenCoord(const Point& designCoord, bool bI
     return screenPos;
 }
 
-void EditBoxImplIOS::setPosition(const Point& pos)
+void EditBoxImplIOS::setPosition(const Vec2& pos)
 {
 	_position = pos;
 	adjustTextFieldPosition();
@@ -603,7 +598,7 @@ void EditBoxImplIOS::setContentSize(const Size& size)
     [_systemControl setContentSize:controlSize];
 }
 
-void EditBoxImplIOS::setAnchorPoint(const Point& anchorPoint)
+void EditBoxImplIOS::setAnchorPoint(const Vec2& anchorPoint)
 {
     CCLOG("[Edit text] anchor point = (%f, %f)", anchorPoint.x, anchorPoint.y);
 	_anchorPoint = anchorPoint;
@@ -638,7 +633,7 @@ void EditBoxImplIOS::adjustTextFieldPosition()
 	Rect rect = Rect(0, 0, contentSize.width, contentSize.height);
     rect = RectApplyAffineTransform(rect, _editBox->nodeToWorldTransform());
 	
-	Point designCoord = Point(rect.origin.x, rect.origin.y + rect.size.height);
+	Vec2 designCoord = Vec2(rect.origin.x, rect.origin.y + rect.size.height);
     [_systemControl setPosition:convertDesignCoordToScreenCoord(designCoord, _inRetinaMode)];
 }
 

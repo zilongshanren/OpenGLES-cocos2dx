@@ -27,10 +27,10 @@
 #ifndef _COCOS2D_CCLABEL_H_
 #define _COCOS2D_CCLABEL_H_
 
-#include "CCSpriteBatchNode.h"
-#include "ccTypes.h"
+#include "2d/CCSpriteBatchNode.h"
+#include "base/ccTypes.h"
 #include "renderer/CCCustomCommand.h"
-#include "CCFontAtlas.h"
+#include "2d/CCFontAtlas.h"
 
 NS_CC_BEGIN
 
@@ -82,49 +82,52 @@ public:
 
     static Label* create();
 
-    /** creates a Label from a font name, horizontal alignment, dimension in points, and font size in points.
-     * @warning It will generate texture by the platform-dependent code if [fontName] not a font file.
+    /** Creates a label with an initial string,font[font name or font file],font size, dimension in points, horizontal alignment and vertical alignment.
+     * @warning It will generate texture by the platform-dependent code
      */
-    static Label * create(const std::string& text, const std::string& fontName, float fontSize,
+    static Label* createWithSystemFont(const std::string& text, const std::string& font, float fontSize,
         const Size& dimensions = Size::ZERO, TextHAlignment hAlignment = TextHAlignment::LEFT,
         TextVAlignment vAlignment = TextVAlignment::TOP);
 
-    /** create a label with TTF configuration
-     * It will generate texture of character by freetype.
+    /** Creates a label with an initial string,font file,font size, dimension in points, horizontal alignment and vertical alignment.
+     * @warning Not support font name.
+     */
+    static Label * createWithTTF(const std::string& text, const std::string& fontFile, float fontSize,
+        const Size& dimensions = Size::ZERO, TextHAlignment hAlignment = TextHAlignment::LEFT,
+        TextVAlignment vAlignment = TextVAlignment::TOP);
+
+    /** Create a label with TTF configuration
+     * @warning Not support font name.
      */
     static Label* createWithTTF(const TTFConfig& ttfConfig, const std::string& text, TextHAlignment alignment = TextHAlignment::LEFT, int maxLineWidth = 0);
     
+    /* Creates a label with an FNT file,an initial string,horizontal alignment,max line width and the offset of image*/
     static Label* createWithBMFont(const std::string& bmfontFilePath, const std::string& text,
         const TextHAlignment& alignment = TextHAlignment::LEFT, int maxLineWidth = 0, 
-        const Point& imageOffset = Point::ZERO);
+        const Vec2& imageOffset = Vec2::ZERO);
     
     static Label * createWithCharMap(const std::string& charMapFile, int itemWidth, int itemHeight, int startCharMap);
     static Label * createWithCharMap(Texture2D* texture, int itemWidth, int itemHeight, int startCharMap);
     static Label * createWithCharMap(const std::string& plistFile);
 
-    /** create a lable with string and a font definition
-     * @warning It will generate texture by the platform-dependent code and create Sprite for show text.
-     * To obtain better performance use createWithTTF/createWithBMFont/createWithCharMap
-     */
-    static Label * createWithFontDefinition(const std::string& text, const FontDefinition &textDefinition);
-
     /** set TTF configuration for Label */
     virtual bool setTTFConfig(const TTFConfig& ttfConfig);
+    virtual const TTFConfig& getTTFConfig() const { return _fontConfig;}
 
-    virtual bool setBMFontFilePath(const std::string& bmfontFilePath, const Point& imageOffset = Point::ZERO);
+    virtual bool setBMFontFilePath(const std::string& bmfontFilePath, const Vec2& imageOffset = Vec2::ZERO);
     const std::string& getBMFontFilePath() const { return _bmFontPath;}
 
     virtual bool setCharMap(const std::string& charMapFile, int itemWidth, int itemHeight, int startCharMap);
     virtual bool setCharMap(Texture2D* texture, int itemWidth, int itemHeight, int startCharMap);
     virtual bool setCharMap(const std::string& plistFile);
 
-    /** set the text definition used by this label
-     * It will create Sprite for show text if you haven't set up using TTF/BMFont/CharMap.
-     */
-    virtual void setFontDefinition(const FontDefinition& textDefinition);
+    /* Sets the system font[font name or font file] of label*/
+    virtual void setSystemFontName(const std::string& systemFont);
+    virtual const std::string& getSystemFontName() const { return _systemFont;}
 
-    /** get the text definition used by this label */
-    const FontDefinition& getFontDefinition() const { return _fontDefinition; }
+    /* Sets the system font size of label.*/
+    virtual void setSystemFontSize(float fontSize);
+    virtual float getSystemFontSize() const { return _systemFontSize;}
 
     /** changes the string to render
     * @warning It is as expensive as changing the string if you haven't set up TTF/BMFont/CharMap for the label.
@@ -190,12 +193,6 @@ public:
     /** update content immediately.*/
     virtual void updateContent();
 
-    virtual void setFontName(const std::string& fontName);
-    virtual const std::string& getFontName() const;
-
-    virtual void setFontSize(float fontSize);
-    virtual float getFontSize() const;
-
     /** Sets the text color
      *
      */
@@ -240,33 +237,24 @@ public:
 
     virtual Rect getBoundingBox() const override;
 
-    virtual void visit(Renderer *renderer, const kmMat4 &parentTransform, bool parentTransformUpdated) override;
-    virtual void draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated) override;
+    virtual void visit(Renderer *renderer, const Mat4 &parentTransform, bool parentTransformUpdated) override;
+    virtual void draw(Renderer *renderer, const Mat4 &transform, bool transformUpdated) override;
 
-    /** Listen "come to background" message
-     It only has effect on Android.
-     */
-    void listenToBackground(EventCustom *event);
+    CC_DEPRECATED_ATTRIBUTE static Label* create(const std::string& text, const std::string& font, float fontSize,
+        const Size& dimensions = Size::ZERO, TextHAlignment hAlignment = TextHAlignment::LEFT,
+        TextVAlignment vAlignment = TextVAlignment::TOP);
 
-    /** Listen "FontAtlas purge textures" message
-     */
-    void listenToFontAtlasPurge(EventCustom *event);
+    CC_DEPRECATED_ATTRIBUTE virtual void setFontDefinition(const FontDefinition& textDefinition);
+    CC_DEPRECATED_ATTRIBUTE const FontDefinition& getFontDefinition() const { return _fontDefinition; }
 
-    CC_DEPRECATED_ATTRIBUTE static Label* createWithTTF(const std::string& label, const std::string& fontFilePath, 
-        int fontSize, int maxLineWidth = 0, TextHAlignment alignment = TextHAlignment::LEFT, 
-        GlyphCollection glyphs = GlyphCollection::DYNAMIC, const char *customGlyphs = 0, bool useDistanceField = false);
-
-    CC_DEPRECATED_ATTRIBUTE int getStringLenght() const { return getStringLength(); }
-
-    CC_DEPRECATED_ATTRIBUTE void setLabelEffect(LabelEffect effect,const Color3B& effectColor);
 protected:
-    void onDraw(const kmMat4& transform, bool transformUpdated);
+    void onDraw(const Mat4& transform, bool transformUpdated);
 
     struct LetterInfo
     {
         FontLetterDefinition def;
 
-        Point position;
+        Vec2 position;
         Size  contentSize;
         int   atlasIndex;
     };
@@ -291,16 +279,15 @@ protected:
 
     virtual void setFontAtlas(FontAtlas* atlas,bool distanceFieldEnabled = false, bool useA8Shader = false);
 
-    bool recordLetterInfo(const cocos2d::Point& point,const FontLetterDefinition& letterDef, int spriteIndex);
+    bool recordLetterInfo(const cocos2d::Vec2& point,const FontLetterDefinition& letterDef, int spriteIndex);
     bool recordPlaceholderInfo(int spriteIndex);
 
     void setFontScale(float fontScale);
     
     virtual void alignText();
     
-    bool computeHorizontalKernings(unsigned short int *stringToRender);
-    bool setCurrentString(unsigned short *stringToSet);
-    bool setOriginalString(unsigned short *stringToSet);
+    bool computeHorizontalKernings(const std::u16string& stringToRender);
+
     void computeStringNumLines();
 
     void updateQuads();
@@ -322,9 +309,10 @@ protected:
 
     bool _isOpacityModifyRGB;
     bool _contentDirty;
-    bool _fontDirty;
-    std::string _fontName;
-    float         _fontSize;
+
+    bool _systemFontDirty;
+    std::string _systemFont;
+    float         _systemFontSize;
     LabelType _currentLabelType;
 
     std::vector<SpriteBatchNode*> _batchNodes;
@@ -336,6 +324,7 @@ protected:
     //compatibility with older LabelTTF
     Sprite* _textSprite;
     FontDefinition _fontDefinition;
+    bool  _compatibleMode;
 
     //! used for optimization
     Sprite *_reusedLetter;
@@ -354,8 +343,7 @@ protected:
     TextVAlignment _vAlignment;
 
     int           _currNumLines;
-    unsigned short int * _currentUTF16String;
-    unsigned short int * _originalUTF16String;
+    std::u16string _currentUTF16String;
     std::string          _originalUTF8String;
 
     float _fontScale;
@@ -375,16 +363,19 @@ protected:
     bool    _shadowEnabled;
     Size    _shadowOffset;
     int     _shadowBlurRadius;
-    kmMat4  _shadowTransform;
+    Mat4  _shadowTransform;
     Color3B _shadowColor;
     float   _shadowOpacity;
     Sprite*   _shadowNode;
+
+    int     _outlineSize;
 
     Color4B _textColor;
     Color4F _textColorF;
 
     bool _clipEnabled;
     bool _blendFuncDirty;
+    bool _insideBounds;                     /// whether or not the sprite was inside bounds the previous frame
 
 private:
     CC_DISALLOW_COPY_AND_ASSIGN(Label);

@@ -54,9 +54,6 @@
     <ClInclude Include="..\CocosGUI.h">
       <Filter>System</Filter>
     </ClInclude>
-    <ClInclude Include="..\UILayoutDefine.h">
-      <Filter>Layouts</Filter>
-    </ClInclude>
     <ClInclude Include="..\UIWidget.h">
       <Filter>BaseClasses</Filter>
     </ClInclude>
@@ -88,6 +85,9 @@
       <Filter>Layouts</Filter>
     </ClInclude>
     <ClInclude Include="..\UIVBox.h">
+      <Filter>Layouts</Filter>
+    </ClInclude>
+    <ClInclude Include="..\UILayoutManager.h">
       <Filter>Layouts</Filter>
     </ClInclude>
   </ItemGroup>
@@ -125,9 +125,6 @@
     <ClCompile Include="..\CocosGUI.cpp">
       <Filter>System</Filter>
     </ClCompile>
-    <ClCompile Include="..\UILayoutDefine.cpp">
-      <Filter>Layouts</Filter>
-    </ClCompile>
     <ClCompile Include="..\UIWidget.cpp">
       <Filter>BaseClasses</Filter>
     </ClCompile>
@@ -159,6 +156,9 @@
       <Filter>Layouts</Filter>
     </ClCompile>
     <ClCompile Include="..\UIVBox.cpp">
+      <Filter>Layouts</Filter>
+    </ClCompile>
+    <ClCompile Include="..\UILayoutManager.cpp">
       <Filter>Layouts</Filter>
     </ClCompile>
   </ItemGroup>

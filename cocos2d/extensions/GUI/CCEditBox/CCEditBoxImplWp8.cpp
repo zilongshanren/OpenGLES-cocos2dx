@@ -25,9 +25,8 @@ THE SOFTWARE.
 #include "CCEditBoxImplWp8.h"
 #include "CCEditBox.h"
 #include "CCGLView.h"
-#include "CCGeometry.h"
-#include "CCScriptSupport.h"
-#include "ccUTF8.h"
+#include "base/CCScriptSupport.h"
+#include "base/ccUTF8.h"
 
 NS_CC_EXT_BEGIN
 
@@ -96,17 +95,17 @@ void CCEditBoxImplWp8::openKeyboard()
 bool CCEditBoxImplWp8::initWithSize( const Size& size )
 {
 	//! int fontSize = getFontSizeAccordingHeightJni(size.height-12);
-	m_pLabel = LabelTTF::create("", "", size.height-12);
+	m_pLabel = Label::createWithSystemFont("", "", size.height-12);
 	// align the text vertically center
-	m_pLabel->setAnchorPoint(Point(0.0f, 0.5f));
-	m_pLabel->setPosition(Point(5.0, size.height / 2.0f));
+	m_pLabel->setAnchorPoint(Vec2(0.0f, 0.5f));
+	m_pLabel->setPosition(Vec2(5.0, size.height / 2.0f));
 	m_pLabel->setColor(m_colText);
 	_editBox->addChild(m_pLabel);
 
-	m_pLabelPlaceHolder = LabelTTF::create("", "", size.height-12);
+	m_pLabelPlaceHolder = Label::createWithSystemFont("", "", size.height-12);
 	// align the text vertically center
-	m_pLabelPlaceHolder->setAnchorPoint(Point(0.0f, 0.5f));
-	m_pLabelPlaceHolder->setPosition(Point(5.0f, size.height / 2.0f));
+	m_pLabelPlaceHolder->setAnchorPoint(Vec2(0.0f, 0.5f));
+	m_pLabelPlaceHolder->setPosition(Vec2(5.0f, size.height / 2.0f));
 	m_pLabelPlaceHolder->setVisible(false);
 	m_pLabelPlaceHolder->setColor(m_colPlaceHolder);
 	_editBox->addChild(m_pLabelPlaceHolder);
@@ -118,13 +117,13 @@ bool CCEditBoxImplWp8::initWithSize( const Size& size )
 void CCEditBoxImplWp8::setFont( const char* pFontName, int fontSize )
 {
 	if(m_pLabel != NULL) {
-		m_pLabel->setFontName(pFontName);
-		m_pLabel->setFontSize(fontSize);
+		m_pLabel->setSystemFontName(pFontName);
+		m_pLabel->setSystemFontSize(fontSize);
 	}
 
 	if(m_pLabelPlaceHolder != NULL) {
-		m_pLabelPlaceHolder->setFontName(pFontName);
-		m_pLabelPlaceHolder->setFontSize(fontSize);
+		m_pLabelPlaceHolder->setSystemFontName(pFontName);
+		m_pLabelPlaceHolder->setSystemFontSize(fontSize);
 	}
 }
 
@@ -137,8 +136,8 @@ void CCEditBoxImplWp8::setFontColor( const Color3B& color )
 void CCEditBoxImplWp8::setPlaceholderFont( const char* pFontName, int fontSize )
 {
 	if(m_pLabelPlaceHolder != NULL) {
-		m_pLabelPlaceHolder->setFontName(pFontName);
-		m_pLabelPlaceHolder->setFontSize(fontSize);
+		m_pLabelPlaceHolder->setSystemFontName(pFontName);
+		m_pLabelPlaceHolder->setSystemFontSize(fontSize);
 	}
 }
 
@@ -235,7 +234,7 @@ void CCEditBoxImplWp8::setPlaceHolder( const char* pText )
 	}
 }
 
-void CCEditBoxImplWp8::setPosition( const Point& pos )
+void CCEditBoxImplWp8::setPosition( const Vec2& pos )
 {
 
 }
@@ -250,7 +249,7 @@ void CCEditBoxImplWp8::setContentSize( const Size& size )
 
 }
 
-void CCEditBoxImplWp8::setAnchorPoint( const Point& anchorPoint )
+void CCEditBoxImplWp8::setAnchorPoint( const Vec2& anchorPoint )
 {
 
 }

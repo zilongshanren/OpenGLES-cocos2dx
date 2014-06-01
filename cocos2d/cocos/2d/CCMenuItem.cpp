@@ -25,12 +25,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ****************************************************************************/
 
-#include "CCMenuItem.h"
-#include "CCActionInterval.h"
-#include "CCSprite.h"
+#include "2d/CCMenuItem.h"
+#include "2d/CCActionInterval.h"
+#include "2d/CCSprite.h"
 #include "CCLabelAtlas.h"
-#include "CCLabel.h"
-#include "CCScriptSupport.h"
+#include "2d/CCLabel.h"
+#include "base/CCScriptSupport.h"
+#include "deprecated/CCString.h"
 #include <stdarg.h>
 #include <cstring>
 
@@ -89,7 +90,7 @@ bool MenuItem::initWithTarget(cocos2d::Ref *target, SEL_MenuHandler selector )
 
 bool MenuItem::initWithCallback(const ccMenuCallback& callback)
 {
-    setAnchorPoint(Point(0.5f, 0.5f));
+    setAnchorPoint(Vec2(0.5f, 0.5f));
 	_callback = callback;
     _enabled = true;
     _selected = false;
@@ -178,7 +179,7 @@ void MenuItemLabel::setLabel(Node* var)
 {
     if (var)
     {
-        var->setAnchorPoint(Point::ANCHOR_BOTTOM_LEFT);
+        var->setAnchorPoint(Vec2::ANCHOR_BOTTOM_LEFT);
         setContentSize(var->getContentSize()); 
         addChild(var);
     }
@@ -439,7 +440,7 @@ bool MenuItemFont::initWithString(const std::string& value, const ccMenuCallback
     _fontName = _globalFontName;
     _fontSize = _globalFontSize;
 
-    Label *label = Label::create(value, _fontName, _fontSize);
+    Label *label = Label::createWithSystemFont(value, _fontName, _fontSize);
     if (MenuItemLabel::initWithLabel(label, callback))
     {
         // do something ?
@@ -450,7 +451,7 @@ bool MenuItemFont::initWithString(const std::string& value, const ccMenuCallback
 void MenuItemFont::setFontSizeObj(int s)
 {
     _fontSize = s;
-    dynamic_cast<Label*>(_label)->setFontSize(_fontSize);
+    dynamic_cast<Label*>(_label)->setSystemFontSize(_fontSize);
     this->setContentSize(dynamic_cast<Label*>(_label)->getContentSize());
 }
 
@@ -462,7 +463,7 @@ int MenuItemFont::getFontSizeObj() const
 void MenuItemFont::setFontNameObj(const std::string& name)
 {
     _fontName = name;
-    dynamic_cast<Label*>(_label)->setFontName(_fontName);
+    dynamic_cast<Label*>(_label)->setSystemFontName(_fontName);
     this->setContentSize(dynamic_cast<Label*>(_label)->getContentSize());
 }
 
@@ -482,7 +483,7 @@ void MenuItemSprite::setNormalImage(Node* image)
         if (image)
         {
             addChild(image, 0, kNormalTag);
-            image->setAnchorPoint(Point(0, 0));
+            image->setAnchorPoint(Vec2(0, 0));
         }
 
         if (_normalImage)
@@ -503,7 +504,7 @@ void MenuItemSprite::setSelectedImage(Node* image)
         if (image)
         {
             addChild(image, 0, kSelectedTag);
-            image->setAnchorPoint(Point(0, 0));
+            image->setAnchorPoint(Vec2(0, 0));
         }
 
         if (_selectedImage)
@@ -523,7 +524,7 @@ void MenuItemSprite::setDisabledImage(Node* image)
         if (image)
         {
             addChild(image, 0, kDisableTag);
-            image->setAnchorPoint(Point(0, 0));
+            image->setAnchorPoint(Vec2(0, 0));
         }
 
         if (_disabledImage)
@@ -934,7 +935,7 @@ void MenuItemToggle::setSelectedIndex(unsigned int index)
         this->addChild(item, 0, kCurrentItem);
         Size s = item->getContentSize();
         this->setContentSize(s);
-        item->setPosition( Point( s.width/2, s.height/2 ) );
+        item->setPosition( Vec2( s.width/2, s.height/2 ) );
     }
 }
 

@@ -29,10 +29,12 @@
 #if defined(_MSC_VER) || defined(__MINGW32__)
 #include <BaseTsd.h>
 #include <WinSock2.h>
-//typedef SSIZE_T ssize_t;
-// ssize_t was redefined as int in libwebsockets.h.
-// Therefore, to avoid conflict, we needs the same definition.
-typedef int ssize_t;
+
+#ifndef __SSIZE_T
+#define __SSIZE_T
+typedef SSIZE_T ssize_t;
+#endif // __SSIZE_T
+
 #else
 #include <sys/select.h>
 #endif
@@ -45,8 +47,8 @@ typedef int ssize_t;
 #include <mutex>
 #include <stdarg.h>
 
-#include "ccMacros.h"
-#include "CCPlatformMacros.h"
+#include "base/ccMacros.h"
+#include "base/CCPlatformMacros.h"
 
 
 NS_CC_BEGIN
@@ -69,13 +71,13 @@ void CC_DLL log(const char * format, ...) CC_FORMAT_PRINTF(1, 2);
  ```
  */
 
-#if (CC_TARGET_PLATFORM != CC_PLATFORM_WINRT) && (CC_TARGET_PLATFORM != CC_PLATFORM_WP8)
+#if (CC_TARGET_PLATFORM != CC_PLATFORM_WINRT)
 class CC_DLL Console
 {
 public:
     struct Command {
-        const char* name;
-        const char* help;
+        std::string name;
+        std::string help;
         std::function<void(int, const std::string&)> callback;
     };
 
@@ -144,7 +146,7 @@ private:
     CC_DISALLOW_COPY_AND_ASSIGN(Console);
 };
 
-#endif /* #if (CC_TARGET_PLATFORM != CC_PLATFORM_WINRT) && (CC_TARGET_PLATFORM != CC_PLATFORM_WP8) */
+#endif /* #if (CC_TARGET_PLATFORM != CC_PLATFORM_WINRT) */
 NS_CC_END
 
 #endif /* defined(__CCCONSOLE_H__) */

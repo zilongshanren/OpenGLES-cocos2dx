@@ -43,8 +43,9 @@ _prevIgnoreSize(true),
 _capInsets(Rect::ZERO),
 _imageRenderer(nullptr),
 _textureFile(""),
-_imageTexType(UI_TEX_TYPE_LOCAL),
-_imageTextureSize(_size)
+_imageTexType(TextureResType::LOCAL),
+_imageTextureSize(_size),
+_imageRendererAdaptDirty(true)
 {
 
 }
@@ -85,7 +86,7 @@ bool ImageView::init()
             ret = false;
             break;
         }
-        _imageTexType = UI_TEX_TYPE_LOCAL;
+        _imageTexType = TextureResType::LOCAL;
     } while (0);
     return ret;
 }
@@ -120,7 +121,7 @@ void ImageView::loadTexture(const std::string& fileName, TextureResType texType)
     _imageTexType = texType;
     switch (_imageTexType)
     {
-        case UI_TEX_TYPE_LOCAL:
+        case TextureResType::LOCAL:
             if (_scale9Enabled)
             {
                 extension::Scale9Sprite* imageRendererScale9 = STATIC_CAST_SCALE9SPRITE;
@@ -133,7 +134,7 @@ void ImageView::loadTexture(const std::string& fileName, TextureResType texType)
                 imageRenderer->setTexture(fileName);
             }
             break;
-        case UI_TEX_TYPE_PLIST:
+        case TextureResType::PLIST:
             if (_scale9Enabled)
             {
                 extension::Scale9Sprite* imageRendererScale9 = STATIC_CAST_SCALE9SPRITE;
@@ -150,11 +151,11 @@ void ImageView::loadTexture(const std::string& fileName, TextureResType texType)
             break;
     }
     _imageTextureSize = _imageRenderer->getContentSize();
-    imageTextureScaleChangedWithSize();
-    updateAnchorPoint();
     updateFlippedX();
     updateFlippedY();
     updateRGBAToRenderer(_imageRenderer);
+    updateContentSizeWithTextureSize(_imageTextureSize);
+    _imageRendererAdaptDirty = true;
 }
 
 void ImageView::setTextureRect(const Rect &rect)
@@ -229,7 +230,7 @@ void ImageView::setScale9Enabled(bool able)
     setCapInsets(_capInsets);
 }
     
-bool ImageView::isScale9Enabled()
+bool ImageView::isScale9Enabled()const
 {
     return _scale9Enabled;
 }
@@ -253,24 +254,27 @@ void ImageView::setCapInsets(const Rect &capInsets)
     STATIC_CAST_SCALE9SPRITE->setCapInsets(capInsets);
 }
 
-const Rect& ImageView::getCapInsets()
+const Rect& ImageView::getCapInsets()const
 {
     return _capInsets;
-}
-    
-void ImageView::setAnchorPoint(const Point &pt)
-{
-    Widget::setAnchorPoint(pt);
-    _imageRenderer->setAnchorPoint(pt);
 }
 
 void ImageView::onSizeChanged()
 {
     Widget::onSizeChanged();
-    imageTextureScaleChangedWithSize();
+    _imageRendererAdaptDirty = true;
+}
+    
+void ImageView::adaptRenderers()
+{
+    if (_imageRendererAdaptDirty)
+    {
+        imageTextureScaleChangedWithSize();
+        _imageRendererAdaptDirty = false;
+    }
 }
 
-const Size& ImageView::getContentSize() const
+const Size& ImageView::getVirtualRendererSize() const
 {
     return _imageTextureSize;
 }
@@ -287,7 +291,6 @@ void ImageView::imageTextureScaleChangedWithSize()
         if (!_scale9Enabled)
         {
             _imageRenderer->setScale(1.0f);
-            _size = _imageTextureSize;
         }
     }
     else
@@ -310,6 +313,7 @@ void ImageView::imageTextureScaleChangedWithSize()
             _imageRenderer->setScaleY(scaleY);
         }
     }
+    _imageRenderer->setPosition(_contentSize.width / 2.0f, _contentSize.height / 2.0f);
 }
 
 std::string ImageView::getDescription() const

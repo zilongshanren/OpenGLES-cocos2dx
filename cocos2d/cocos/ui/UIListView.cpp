@@ -34,12 +34,13 @@ IMPLEMENT_CLASS_GUI_INFO(ListView)
 
 ListView::ListView():
 _model(nullptr),
-_gravity(LISTVIEW_GRAVITY_CENTER_HORIZONTAL),
+_gravity(Gravity::CENTER_VERTICAL),
 _itemsMargin(0.0f),
 _listViewEventListener(nullptr),
 _listViewEventSelector(nullptr),
 _curSelectedIndex(0),
-_refreshViewDirty(true)
+_refreshViewDirty(true),
+_eventCallback(nullptr)
 {
     
 }
@@ -68,7 +69,7 @@ bool ListView::init()
 {
     if (ScrollView::init())
     {
-        setLayoutType(LAYOUT_LINEAR_VERTICAL);
+        setLayoutType(Type::VERTICAL);
         return true;
     }
     return false;
@@ -89,7 +90,7 @@ void ListView::updateInnerContainerSize()
 {
     switch (_direction)
     {
-        case SCROLLVIEW_DIR_VERTICAL:
+        case Direction::VERTICAL:
         {
             size_t length = _items.size();
             float totalHeight = (length - 1) * _itemsMargin;
@@ -102,7 +103,7 @@ void ListView::updateInnerContainerSize()
             setInnerContainerSize(Size(finalWidth, finalHeight));
             break;
         }
-        case SCROLLVIEW_DIR_HORIZONTAL:
+        case Direction::HORIZONTAL:
         {
             size_t length = _items.size();
             float totalWidth = (length - 1) * _itemsMargin;
@@ -127,21 +128,21 @@ void ListView::remedyLayoutParameter(Widget *item)
         return;
     }
     switch (_direction) {
-        case SCROLLVIEW_DIR_VERTICAL:
+        case Direction::VERTICAL:
         {
-            LinearLayoutParameter* llp = (LinearLayoutParameter*)(item->getLayoutParameter(LAYOUT_PARAMETER_LINEAR));
+            LinearLayoutParameter* llp = (LinearLayoutParameter*)(item->getLayoutParameter());
             if (!llp)
             {
                 LinearLayoutParameter* defaultLp = LinearLayoutParameter::create();
                 switch (_gravity) {
-                    case LISTVIEW_GRAVITY_LEFT:
-                        defaultLp->setGravity(LINEAR_GRAVITY_LEFT);
+                    case Gravity::LEFT:
+                        defaultLp->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
                         break;
-                    case LISTVIEW_GRAVITY_RIGHT:
-                        defaultLp->setGravity(LINEAR_GRAVITY_RIGHT);
+                    case Gravity::RIGHT:
+                        defaultLp->setGravity(LinearLayoutParameter::LinearGravity::RIGHT);
                         break;
-                    case LISTVIEW_GRAVITY_CENTER_HORIZONTAL:
-                        defaultLp->setGravity(LINEAR_GRAVITY_CENTER_HORIZONTAL);
+                    case Gravity::CENTER_HORIZONTAL:
+                        defaultLp->setGravity(LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
                         break;
                     default:
                         break;
@@ -167,14 +168,14 @@ void ListView::remedyLayoutParameter(Widget *item)
                     llp->setMargin(Margin(0.0f, _itemsMargin, 0.0f, 0.0f));
                 }
                 switch (_gravity) {
-                    case LISTVIEW_GRAVITY_LEFT:
-                        llp->setGravity(LINEAR_GRAVITY_LEFT);
+                    case Gravity::LEFT:
+                        llp->setGravity(LinearLayoutParameter::LinearGravity::LEFT);
                         break;
-                    case LISTVIEW_GRAVITY_RIGHT:
-                        llp->setGravity(LINEAR_GRAVITY_RIGHT);
+                    case Gravity::RIGHT:
+                        llp->setGravity(LinearLayoutParameter::LinearGravity::RIGHT);
                         break;
-                    case LISTVIEW_GRAVITY_CENTER_HORIZONTAL:
-                        llp->setGravity(LINEAR_GRAVITY_CENTER_HORIZONTAL);
+                    case Gravity::CENTER_HORIZONTAL:
+                        llp->setGravity(LinearLayoutParameter::LinearGravity::CENTER_HORIZONTAL);
                         break;
                     default:
                         break;
@@ -182,21 +183,21 @@ void ListView::remedyLayoutParameter(Widget *item)
             }
             break;
         }
-        case SCROLLVIEW_DIR_HORIZONTAL:
+        case Direction::HORIZONTAL:
         {
-            LinearLayoutParameter* llp = (LinearLayoutParameter*)(item->getLayoutParameter(LAYOUT_PARAMETER_LINEAR));
+            LinearLayoutParameter* llp = (LinearLayoutParameter*)(item->getLayoutParameter());
             if (!llp)
             {
                 LinearLayoutParameter* defaultLp = LinearLayoutParameter::create();
                 switch (_gravity) {
-                    case LISTVIEW_GRAVITY_TOP:
-                        defaultLp->setGravity(LINEAR_GRAVITY_TOP);
+                    case Gravity::TOP:
+                        defaultLp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
                         break;
-                    case LISTVIEW_GRAVITY_BOTTOM:
-                        defaultLp->setGravity(LINEAR_GRAVITY_BOTTOM);
+                    case Gravity::BOTTOM:
+                        defaultLp->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
                         break;
-                    case LISTVIEW_GRAVITY_CENTER_VERTICAL:
-                        defaultLp->setGravity(LINEAR_GRAVITY_CENTER_VERTICAL);
+                    case Gravity::CENTER_VERTICAL:
+                        defaultLp->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
                         break;
                     default:
                         break;
@@ -222,14 +223,14 @@ void ListView::remedyLayoutParameter(Widget *item)
                     llp->setMargin(Margin(_itemsMargin, 0.0f, 0.0f, 0.0f));
                 }
                 switch (_gravity) {
-                    case LISTVIEW_GRAVITY_TOP:
-                        llp->setGravity(LINEAR_GRAVITY_TOP);
+                    case Gravity::TOP:
+                        llp->setGravity(LinearLayoutParameter::LinearGravity::TOP);
                         break;
-                    case LISTVIEW_GRAVITY_BOTTOM:
-                        llp->setGravity(LINEAR_GRAVITY_BOTTOM);
+                    case Gravity::BOTTOM:
+                        llp->setGravity(LinearLayoutParameter::LinearGravity::BOTTOM);
                         break;
-                    case LISTVIEW_GRAVITY_CENTER_VERTICAL:
-                        llp->setGravity(LINEAR_GRAVITY_CENTER_VERTICAL);
+                    case Gravity::CENTER_VERTICAL:
+                        llp->setGravity(LinearLayoutParameter::LinearGravity::CENTER_VERTICAL);
                         break;
                     default:
                         break;
@@ -250,7 +251,6 @@ void ListView::pushBackDefaultItem()
         return;
     }
     Widget* newItem = _model->clone();
-    _items.pushBack(newItem);
     remedyLayoutParameter(newItem);
     addChild(newItem);
     _refreshViewDirty = true;
@@ -263,25 +263,71 @@ void ListView::insertDefaultItem(ssize_t index)
         return;
     }
     Widget* newItem = _model->clone();
+    
     _items.insert(index, newItem);
+    ScrollView::addChild(newItem);
+
     remedyLayoutParameter(newItem);
-    addChild(newItem);
+    
     _refreshViewDirty = true;
 }
 
 void ListView::pushBackCustomItem(Widget* item)
 {
-    _items.pushBack(item);
     remedyLayoutParameter(item);
     addChild(item);
     _refreshViewDirty = true;
+}
+    
+void ListView::addChild(cocos2d::Node *child)
+{
+    ListView::addChild(child, child->getZOrder(), child->getTag());
+}
+    
+void ListView::addChild(cocos2d::Node *child, int zOrder)
+{
+    ListView::addChild(child, zOrder, child->getTag());
+}
+    
+void ListView::addChild(cocos2d::Node *child, int zOrder, int tag)
+{
+    ScrollView::addChild(child, zOrder, tag);
+
+    Widget* widget = dynamic_cast<Widget*>(child);
+    if (widget)
+    {
+        _items.pushBack(widget);
+    }
+
+}
+    
+void ListView::removeChild(cocos2d::Node *child, bool cleaup)
+{
+    Widget* widget = dynamic_cast<Widget*>(child);
+    if (widget) {
+        _items.eraseObject(widget);
+    }
+   
+    ScrollView::removeChild(child, cleaup);
+}
+    
+void ListView::removeAllChildren()
+{
+    this->removeAllChildrenWithCleanup(true);
+}
+    
+void ListView::removeAllChildrenWithCleanup(bool cleanup)
+{
+    ScrollView::removeAllChildrenWithCleanup(cleanup);
+    _items.clear();
 }
 
 void ListView::insertCustomItem(Widget* item, ssize_t index)
 {
     _items.insert(index, item);
+    ScrollView::addChild(item);
+
     remedyLayoutParameter(item);
-    addChild(item);
     _refreshViewDirty = true;
 }
 
@@ -292,8 +338,8 @@ void ListView::removeItem(ssize_t index)
     {
         return;
     }
-    _items.eraseObject(item);
-    removeChild(item);
+    removeChild(item, true);
+    
     _refreshViewDirty = true;
 }
 
@@ -304,11 +350,10 @@ void ListView::removeLastItem()
     
 void ListView::removeAllItems()
 {
-    _items.clear();
     removeAllChildren();
 }
 
-Widget* ListView::getItem(ssize_t index)
+Widget* ListView::getItem(ssize_t index)const
 {
     if (index < 0 || index >= _items.size())
     {
@@ -331,7 +376,7 @@ ssize_t ListView::getIndex(Widget *item) const
     return _items.getIndex(item);
 }
 
-void ListView::setGravity(ListViewGravity gravity)
+void ListView::setGravity(Gravity gravity)
 {
     if (_gravity == gravity)
     {
@@ -351,22 +396,22 @@ void ListView::setItemsMargin(float margin)
     _refreshViewDirty = true;
 }
     
-float ListView::getItemsMargin()
+float ListView::getItemsMargin()const
 {
     return _itemsMargin;
 }
 
-void ListView::setDirection(SCROLLVIEW_DIR dir)
+void ListView::setDirection(Direction dir)
 {
     switch (dir)
     {
-        case SCROLLVIEW_DIR_VERTICAL:
-            setLayoutType(LAYOUT_LINEAR_VERTICAL);
+        case Direction::VERTICAL:
+            setLayoutType(Type::VERTICAL);
             break;
-        case SCROLLVIEW_DIR_HORIZONTAL:
-            setLayoutType(LAYOUT_LINEAR_HORIZONTAL);
+        case Direction::HORIZONTAL:
+            setLayoutType(Type::HORIZONTAL);
             break;
-        case SCROLLVIEW_DIR_BOTH:
+        case Direction::BOTH:
             return;
         default:
             return;
@@ -408,30 +453,45 @@ void ListView::addEventListenerListView(Ref *target, SEL_ListViewEvent selector)
     _listViewEventSelector = selector;
 }
     
-void ListView::selectedItemEvent(int state)
+void ListView::addEventListener(const ccListViewCallback& callback)
 {
-    switch (state)
+    _eventCallback = callback;
+}
+    
+void ListView::selectedItemEvent(TouchEventType event)
+{
+    switch (event)
     {
-        case 0:
+        case TouchEventType::BEGAN:
+        {
             if (_listViewEventListener && _listViewEventSelector)
             {
                 (_listViewEventListener->*_listViewEventSelector)(this, LISTVIEW_ONSELECTEDITEM_START);
             }
-            break;
+            if (_eventCallback) {
+                _eventCallback(this,EventType::ON_SELECTED_ITEM_START);
+            }
+        }
+        break;
         default:
+        {
             if (_listViewEventListener && _listViewEventSelector)
             {
                 (_listViewEventListener->*_listViewEventSelector)(this, LISTVIEW_ONSELECTEDITEM_END);
             }
-            break;
+            if (_eventCallback) {
+                _eventCallback(this, EventType::ON_SELECTED_ITEM_END);
+            }
+        }
+        break;
     }
 
 }
     
-void ListView::interceptTouchEvent(int handleState, Widget *sender, const Point &touchPoint)
+void ListView::interceptTouchEvent(TouchEventType event, Widget *sender, const Vec2 &touchPoint)
 {
-    ScrollView::interceptTouchEvent(handleState, sender, touchPoint);
-    if (handleState != 1)
+    ScrollView::interceptTouchEvent(event, sender, touchPoint);
+    if (event != TouchEventType::MOVED)
     {
         Widget* parent = sender;
         while (parent)
@@ -443,7 +503,7 @@ void ListView::interceptTouchEvent(int handleState, Widget *sender, const Point 
             }
             parent = dynamic_cast<Widget*>(parent->getParent());
         }
-        selectedItemEvent(handleState);
+        selectedItemEvent(event);
     }
 }
     
@@ -486,6 +546,9 @@ void ListView::copySpecialProperties(Widget *widget)
         setItemModel(listViewEx->_model);
         setItemsMargin(listViewEx->_itemsMargin);
         setGravity(listViewEx->_gravity);
+        _listViewEventListener = listViewEx->_listViewEventListener;
+        _listViewEventSelector = listViewEx->_listViewEventSelector;
+        _eventCallback = listViewEx->_eventCallback;
     }
 }
 

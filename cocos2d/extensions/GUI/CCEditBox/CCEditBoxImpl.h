@@ -38,7 +38,7 @@ public:
     /**
      * @js NA
      */
-    EditBoxImpl(EditBox* pEditBox) : _delegate(NULL),_editBox(pEditBox) {}
+    EditBoxImpl(EditBox* pEditBox) : _delegate(nullptr),_editBox(pEditBox) {}
     /**
      * @js NA
      * @lua NA
@@ -65,10 +65,10 @@ public:
     virtual void openKeyboard() = 0;
     virtual void closeKeyboard() = 0;
     
-    virtual void setPosition(const Point& pos) = 0;
+    virtual void setPosition(const Vec2& pos) = 0;
     virtual void setVisible(bool visible) = 0;
     virtual void setContentSize(const Size& size) = 0;
-	virtual void setAnchorPoint(const Point& anchorPoint) = 0;
+	virtual void setAnchorPoint(const Vec2& anchorPoint) = 0;
     
     /**
      * check the editbox's position, update it when needed

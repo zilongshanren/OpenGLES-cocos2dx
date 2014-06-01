@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 #include "CCEditBoxImplMac.h"
-#include "CCDirector.h"
+#include "base/CCDirector.h"
 
 #if (CC_TARGET_PLATFORM == CC_PLATFORM_MAC)
 
@@ -38,29 +38,11 @@
 
 
 
-@implementation CCCustomNSTextField
-
-- (CGRect)textRectForBounds:(CGRect)bounds {
-    float padding = 5.0f;
-    return CGRectMake(bounds.origin.x + padding, bounds.origin.y + padding,
-                      bounds.size.width - padding*2, bounds.size.height - padding*2);
-}
-- (CGRect)editingRectForBounds:(CGRect)bounds {
-    return [self textRectForBounds:bounds];
-}
-
-- (void)setup {
-    [self setBordered:NO];
-    [self setHidden:NO];
-    [self setWantsLayer:YES];
-}
-
-@end
-
-
 @implementation CCEditBoxImplMac
 
 @synthesize textField = textField_;
+@synthesize secureTextField = secureTextField_;
+@synthesize placeholderAttributes = placeholderAttributes_;
 @synthesize editState = editState_;
 @synthesize editBox = editBox_;
 
@@ -74,7 +56,13 @@
 {
     [textField_ resignFirstResponder];
     [textField_ removeFromSuperview];
-    self.textField = NULL;
+    [textField_ release];
+    
+    [secureTextField_ resignFirstResponder];
+    [secureTextField_ removeFromSuperview];
+    [secureTextField_ release];
+    
+    [placeholderAttributes_ release];
     [super dealloc];
 }
 
@@ -82,26 +70,39 @@
 {
     self = [super init];
     
-    do
+    if (self)
     {
-        if (self == nil) break;
         editState_ = NO;
-        self.textField = [[[CCCustomNSTextField alloc] initWithFrame: frameRect] autorelease];
-        if (!textField_) break;
-        [textField_ setTextColor:[NSColor whiteColor]];
-        textField_.font = [NSFont systemFontOfSize:frameRect.size.height*2/3]; //TODO need to delete hard code here.
-        textField_.backgroundColor = [NSColor clearColor];
-        [textField_ setup];
-        textField_.delegate = self;
-        [textField_ setDelegate:self];
+        self.textField = [[[NSTextField alloc] initWithFrame:frameRect] autorelease];
+        self.secureTextField = [[[NSSecureTextField alloc] initWithFrame:frameRect] autorelease];
+
+        NSFont *font = [NSFont systemFontOfSize:frameRect.size.height*2/3]; //TODO need to delete hard code here.
+        textField_.font = font;
+        secureTextField_.font = font;
+        
+        [self setupTextField:textField_];
+        [self setupTextField:secureTextField_];
+
         self.editBox = editBox;
+        self.placeholderAttributes = [NSMutableDictionary dictionaryWithObjectsAndKeys:
+                                      font, NSFontAttributeName,
+                                      [NSColor grayColor], NSForegroundColorAttributeName,
+                                      nil];
         
         [[[self getNSWindow] contentView] addSubview:textField_];
-        
-        return self;
-    }while(0);
+    }
     
-    return nil;
+    return self;
+}
+
+- (void)setupTextField:(NSTextField *)textField
+{
+    [textField setTextColor:[NSColor whiteColor]];
+    [textField setBackgroundColor:[NSColor clearColor]];
+    [textField setBordered:NO];
+    [textField setHidden:NO];
+    [textField setWantsLayer:YES];
+    [textField setDelegate:self];
 }
 
 -(void) doAnimationWhenKeyboardMoveWithDuration:(float)duration distance:(float)distance
@@ -114,6 +115,7 @@
     NSRect frame = [textField_ frame];
     frame.origin = pos;
     [textField_ setFrame:frame];
+    [secureTextField_ setFrame:frame];
 }
 
 -(void) setContentSize:(NSSize) size
@@ -128,18 +130,29 @@
 
 -(void) openKeyboard
 {
-    [textField_ becomeFirstResponder];
+    if ([textField_ superview]) {
+        [textField_ becomeFirstResponder];
+    }
+    else {
+        [secureTextField_ becomeFirstResponder];
+    }
 }
 
 -(void) closeKeyboard
 {
-    [textField_ resignFirstResponder];
-    [textField_ removeFromSuperview];
+    if ([textField_ superview]) {
+        [textField_ resignFirstResponder];
+        [textField_ removeFromSuperview];
+    }
+    else {
+        [secureTextField_ resignFirstResponder];
+        [secureTextField_ removeFromSuperview];
+    }
 }
 
 - (BOOL)textFieldShouldReturn:(NSTextField *)sender
 {
-    if (sender == textField_) {
+    if (sender == textField_ || sender == secureTextField_) {
         [sender resignFirstResponder];
     }
     return NO;
@@ -187,8 +200,8 @@
         cocos2d::CommonScriptData data(pEditBox->getScriptEditBoxHandler(), "ended",pEditBox);
         cocos2d::ScriptEvent event(cocos2d::kCommonEvent,(void*)&data);
         cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
-        memset(data.eventName,0,64*sizeof(char));
-        strncpy(data.eventName,"return",64);
+        memset(data.eventName, 0, sizeof(data.eventName));
+        strncpy(data.eventName, "return", sizeof(data.eventName));
         event.data = (void*)&data;
         cocos2d::ScriptEngineManager::getInstance()->getScriptEngine()->sendEvent(&event);
     }
@@ -252,9 +265,9 @@ EditBoxImpl* __createSystemEditBox(EditBox* pEditBox)
 
 EditBoxImplMac::EditBoxImplMac(EditBox* pEditText)
 : EditBoxImpl(pEditText)
-, _anchorPoint(Point(0.5f, 0.5f))
+, _anchorPoint(Vec2(0.5f, 0.5f))
 , _maxTextLength(-1)
-, _sysEdit(NULL)
+, _sysEdit(nullptr)
 {
     //! TODO: Retina on Mac
     //! _inRetinaMode = [[CCEAGLView sharedEGLView] contentScaleFactor] == 2.0f ? true : false;
@@ -293,28 +306,50 @@ bool EditBoxImplMac::initWithSize(const Size& size)
 
 void EditBoxImplMac::setFont(const char* pFontName, int fontSize)
 {
-    //TODO:
-//	if(pFontName == NULL)
-//		return;
-//	NSString * fntName = [NSString stringWithUTF8String:pFontName];
-//	UIFont *textFont = [UIFont fontWithName:fntName size:fontSize];
-//	if(textFont != nil)
-//		[_sysEdit.textField setFont:textFont];
+	NSString * fntName = [NSString stringWithUTF8String:pFontName];
+	NSFont *textFont = [NSFont fontWithName:fntName size:fontSize];
+	if (textFont != nil) {
+		[_sysEdit.textField setFont:textFont];
+        [_sysEdit.secureTextField setFont:textFont];
+    }
 }
 
 void EditBoxImplMac::setPlaceholderFont(const char* pFontName, int fontSize)
 {
-	// TODO need to be implemented.
+    NSString *fontName = [NSString stringWithUTF8String:pFontName];
+    NSFont *font = [NSFont fontWithName:fontName size:fontSize];
+    
+    if (!font) {
+        CCLOGWARN("Font not found: %s", pFontName);
+        return;
+    }
+    
+    _sysEdit.placeholderAttributes[NSFontAttributeName] = font;
+    
+    /* reload placeholder */
+    const char *placeholder = [_sysEdit.textField.cell placeholderAttributedString].string.UTF8String;
+    if (placeholder) {
+        setPlaceHolder(placeholder);
+    }
 }
 
 void EditBoxImplMac::setFontColor(const Color3B& color)
 {
-    _sysEdit.textField.textColor = [NSColor colorWithCalibratedRed:color.r / 255.0f green:color.g / 255.0f blue:color.b / 255.0f alpha:1.0f];
+    NSColor *newColor = [NSColor colorWithCalibratedRed:color.r / 255.0f green:color.g / 255.0f blue:color.b / 255.0f alpha:1.0f];
+    _sysEdit.textField.textColor = newColor;
+    _sysEdit.secureTextField.textColor = newColor;
 }
 
 void EditBoxImplMac::setPlaceholderFontColor(const Color3B& color)
 {
-    // TODO need to be implemented.
+    NSColor *nsColor = [NSColor colorWithCalibratedRed:color.r/255.f green:color.g / 255.f blue:color.b / 255.f alpha:1.0f];
+    _sysEdit.placeholderAttributes[NSForegroundColorAttributeName] = nsColor;
+    
+    /* reload placeholder */
+    const char *placeholder = [_sysEdit.textField.cell placeholderAttributedString].string.UTF8String;
+    if (placeholder) {
+        setPlaceHolder(placeholder);
+    }
 }
 
 void EditBoxImplMac::setInputMode(EditBox::InputMode inputMode)
@@ -333,7 +368,27 @@ int EditBoxImplMac::getMaxLength()
 
 void EditBoxImplMac::setInputFlag(EditBox::InputFlag inputFlag)
 {
-    // TODO: NSSecureTextField
+    switch (inputFlag)
+    {
+        case EditBox::InputFlag::PASSWORD:
+            [_sysEdit.textField.superview addSubview:_sysEdit.secureTextField];
+            [_sysEdit.textField removeFromSuperview];
+            break;
+        case EditBox::InputFlag::INITIAL_CAPS_WORD:
+            CCLOGWARN("INITIAL_CAPS_WORD not implemented");
+            break;
+        case EditBox::InputFlag::INITIAL_CAPS_SENTENCE:
+            CCLOGWARN("INITIAL_CAPS_SENTENCE not implemented");
+            break;
+        case EditBox::InputFlag::INTIAL_CAPS_ALL_CHARACTERS:
+            CCLOGWARN("INTIAL_CAPS_ALL_CHARACTERS not implemented");
+            break;
+        case EditBox::InputFlag::SENSITIVE:
+            CCLOGWARN("SENSITIVE not implemented");
+            break;
+        default:
+            break;
+    }
 }
 
 void EditBoxImplMac::setReturnType(EditBox::KeyboardReturnType returnType)
@@ -347,7 +402,9 @@ bool EditBoxImplMac::isEditing()
 
 void EditBoxImplMac::setText(const char* pText)
 {
-    _sysEdit.textField.stringValue = [NSString stringWithUTF8String:pText];
+    NSString *string = [NSString stringWithUTF8String:pText];
+    _sysEdit.textField.stringValue = string;
+    _sysEdit.textField.stringValue = string;
 }
 
 const char*  EditBoxImplMac::getText(void)
@@ -357,18 +414,23 @@ const char*  EditBoxImplMac::getText(void)
 
 void EditBoxImplMac::setPlaceHolder(const char* pText)
 {
-    [[_sysEdit.textField cell] setPlaceholderString:[NSString stringWithUTF8String:pText]];
+    NSAttributedString *as = [[NSAttributedString alloc] initWithString:[NSString stringWithUTF8String:pText]
+                                                             attributes:_sysEdit.placeholderAttributes];
+    
+    [[_sysEdit.textField cell] setPlaceholderAttributedString:as];
+    [[_sysEdit.secureTextField cell] setPlaceholderAttributedString:as];
+    [as release];
 }
 
-NSPoint EditBoxImplMac::convertDesignCoordToScreenCoord(const Point& designCoord, bool bInRetinaMode)
+NSPoint EditBoxImplMac::convertDesignCoordToScreenCoord(const Vec2& designCoord, bool bInRetinaMode)
 {
     NSRect frame = [_sysEdit.textField frame];
     CGFloat height = frame.size.height;
     
     GLViewProtocol* eglView = Director::getInstance()->getOpenGLView();
 
-    Point visiblePos = Point(designCoord.x * eglView->getScaleX(), designCoord.y * eglView->getScaleY());
-    Point screenGLPos = visiblePos + eglView->getViewPortRect().origin;
+    Vec2 visiblePos = Vec2(designCoord.x * eglView->getScaleX(), designCoord.y * eglView->getScaleY());
+    Vec2 screenGLPos = visiblePos + eglView->getViewPortRect().origin;
     
     //TODO: I don't know why here needs to substract `height`.
     NSPoint screenPos = NSMakePoint(screenGLPos.x, screenGLPos.y-height);
@@ -397,11 +459,11 @@ void EditBoxImplMac::adjustTextFieldPosition()
 
     rect = RectApplyAffineTransform(rect, _editBox->nodeToWorldTransform());
 	
-	Point designCoord = Point(rect.origin.x, rect.origin.y + rect.size.height);
+	Vec2 designCoord = Vec2(rect.origin.x, rect.origin.y + rect.size.height);
     [_sysEdit setPosition:convertDesignCoordToScreenCoord(designCoord, _inRetinaMode)];
 }
 
-void EditBoxImplMac::setPosition(const Point& pos)
+void EditBoxImplMac::setPosition(const Vec2& pos)
 {
     _position = pos;
     adjustTextFieldPosition();
@@ -410,6 +472,7 @@ void EditBoxImplMac::setPosition(const Point& pos)
 void EditBoxImplMac::setVisible(bool visible)
 {
     [_sysEdit.textField setHidden:!visible];
+    [_sysEdit.secureTextField setHidden:!visible];
 }
 
 void EditBoxImplMac::setContentSize(const Size& size)
@@ -418,7 +481,7 @@ void EditBoxImplMac::setContentSize(const Size& size)
     CCLOG("[Edit text] content size = (%f, %f)", size.width, size.height);
 }
 
-void EditBoxImplMac::setAnchorPoint(const Point& anchorPoint)
+void EditBoxImplMac::setAnchorPoint(const Vec2& anchorPoint)
 {
     CCLOG("[Edit text] anchor point = (%f, %f)", anchorPoint.x, anchorPoint.y);
 	_anchorPoint = anchorPoint;

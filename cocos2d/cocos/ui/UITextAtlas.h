@@ -73,16 +73,24 @@ public:
                      const std::string& startCharMap);
     
     //set string value for labelatlas.
-    void setStringValue(const std::string& value);
+    CC_DEPRECATED_ATTRIBUTE void setStringValue(const std::string& value){this->setString(value);}
+    void setString(const std::string& value);
     
     //get string value for labelatlas.
-    const std::string& getStringValue() const;
+    CC_DEPRECATED_ATTRIBUTE const std::string& getStringValue() const{return this->getString();}
+    const std::string& getString() const;
     
-    //override "setAnchorPoint" method of widget.
-    virtual void setAnchorPoint(const Point &pt) override;
+    /**
+     * Gets the string length of the label.
+     * Note: This length will be larger than the raw string length,
+     * if you want to get the raw string length, you should call this->getString().size() instead
+     *
+     * @return  string length.
+     */
+    ssize_t getStringLength()const;
     
-    //override "getContentSize" method of widget.
-    virtual const Size& getContentSize() const override;
+    //override "getVirtualRendererSize" method of widget.
+    virtual const Size& getVirtualRendererSize() const override;
     
     //override "getVirtualRenderer" method of widget.
     virtual Node* getVirtualRenderer() override;
@@ -92,6 +100,7 @@ public:
      */
     virtual std::string getDescription() const override;
     
+    virtual void adaptRenderers() override;
 protected:
     virtual void initRenderer() override;
     virtual void onSizeChanged() override;
@@ -102,12 +111,13 @@ protected:
     virtual Widget* createCloneInstance() override;
     virtual void copySpecialProperties(Widget* model) override;
 protected:
-    LabelAtlas* _labelAtlasRenderer;
+    Label* _labelAtlasRenderer;
     std::string _stringValue;
     std::string _charMapFileName;
     int _itemWidth;
     int _itemHeight;
     std::string _startCharMap;
+    bool _labelAtlasRendererAdaptDirty;
 };
 
 }

@@ -24,7 +24,7 @@ THE SOFTWARE.
 
 #include "cocostudio/CocoStudio.h"
 #include "ui/CocosGUI.h"
-#include "SimpleAudioEngine.h"
+#include "audio/include/SimpleAudioEngine.h"
 #include "ObjectFactory.h"
 
 using namespace cocos2d;
@@ -56,6 +56,7 @@ const char* SceneReader::sceneReaderVersion()
 
 cocos2d::Node* SceneReader::createNodeWithSceneFile(const std::string &fileName, AttachComponentType attachComponent /*= AttachComponentType::EMPTY_NODE*/)
 {
+    _node = nullptr;
     rapidjson::Document jsonDict;
     do {
           CC_BREAK_IF(!readJson(fileName, jsonDict));
@@ -219,7 +220,7 @@ void SceneReader::setPropertyFromJsonDict(const rapidjson::Value &root, cocos2d:
 {
     float x = DICTOOL->getFloatValue_json(root, "x");
     float y = DICTOOL->getFloatValue_json(root, "y");
-    node->setPosition(Point(x, y));
+    node->setPosition(Vec2(x, y));
     
     const bool bVisible = (DICTOOL->getIntValue_json(root, "visible", 1) != 0);
     node->setVisible(bVisible);

@@ -52,10 +52,10 @@ public:
 	virtual void setText(const char* pText);
 	virtual const char* getText(void);
 	virtual void setPlaceHolder(const char* pText);
-	virtual void setPosition(const Point& pos);
+	virtual void setPosition(const Vec2& pos);
 	virtual void setVisible(bool visible);
 	virtual void setContentSize(const Size& size);
-	virtual void setAnchorPoint(const Point& anchorPoint);
+	virtual void setAnchorPoint(const Vec2& anchorPoint);
 	virtual void visit(void);
 	virtual void doAnimationWhenKeyboardMove(float duration, float distance);
 	virtual void openKeyboard();
@@ -66,8 +66,8 @@ private:
 	std::string PlatformStringTostring(Platform::String^ strSrc);
 private:
 
-	LabelTTF* m_pLabel;
-	LabelTTF* m_pLabelPlaceHolder;
+	Label* m_pLabel;
+	Label* m_pLabelPlaceHolder;
 	EditBox::InputMode    m_eEditBoxInputMode;
 	EditBox::InputFlag    m_eEditBoxInputFlag;
 	(EditBox::KeyboardReturnType  m_eKeyboardReturnType;

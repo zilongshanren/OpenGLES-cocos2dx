@@ -14,7 +14,7 @@ public:
     // Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
     virtual bool init();  
     
-    virtual void draw(Renderer *renderer, const kmMat4 &transform, bool transformUpdated) override;
+    virtual void visit(Renderer *renderer, const Mat4 &transform, bool transformUpdated) override;
     //we call our actual opengl commands here
     void onDraw();
     
@@ -22,23 +22,8 @@ public:
     CREATE_FUNC(HelloWorld);
     
 private:
-    kmMat4 _modelViewMV;
     CustomCommand _customCommand;
     
-    GLProgram *mShaderProgram;
-    GLint _colorLocation;
-    GLint _positionLocation;
-    GLint _textureLocation;
-    
-    
-    GLuint _projectionUniform;
-    GLuint _modelViewUniform;
-    GLuint _textureUniform;
-    
-    
-    GLuint _textureID;
-    GLuint _textureID2;
-    Texture2D *_texture;
 };
 
 #endif // __HELLOWORLD_SCENE_H__

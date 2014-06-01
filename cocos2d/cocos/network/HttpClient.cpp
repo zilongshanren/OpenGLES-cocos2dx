@@ -32,9 +32,9 @@
 
 #include <errno.h>
 
-#include "CCVector.h"
-#include "CCDirector.h"
-#include "CCScheduler.h"
+#include "base/CCVector.h"
+#include "base/CCDirector.h"
+#include "base/CCScheduler.h"
 
 #include "curl/curl.h"
 
@@ -339,7 +339,7 @@ public:
         if (CURLE_OK != curl_easy_perform(_curl))
             return false;
         CURLcode code = curl_easy_getinfo(_curl, CURLINFO_RESPONSE_CODE, responseCode);
-        if (code != CURLE_OK || *responseCode != 200) {
+        if (code != CURLE_OK || !(*responseCode >= 200 && *responseCode < 300)) {
             CCLOGERROR("Curl curl_easy_getinfo failed: %s", curl_easy_strerror(code));
             return false;
         }
@@ -502,10 +502,15 @@ void HttpClient::dispatchResponseCallbacks()
     if (response)
     {
         HttpRequest *request = response->getHttpRequest();
+        const ccHttpRequestCallback& callback = request->getCallback();
         Ref* pTarget = request->getTarget();
         SEL_HttpResponse pSelector = request->getSelector();
 
-        if (pTarget && pSelector) 
+        if (callback != nullptr)
+        {
+            callback(this, response);
+        }
+        else if (pTarget && pSelector)
         {
             (pTarget->*pSelector)(this, response);
         }

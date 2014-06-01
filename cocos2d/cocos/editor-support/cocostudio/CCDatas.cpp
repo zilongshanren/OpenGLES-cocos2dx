@@ -251,7 +251,7 @@ FrameData::FrameData(void)
     , duration(1)
     , tweenEasing(cocos2d::tweenfunc::Linear)
     , easingParamNumber(0)
-    , easingParams(NULL)
+    , easingParams(nullptr)
     , isTween(true)
     , displayIndex(0)
     , blendFunc(BlendFunc::ALPHA_NON_PREMULTIPLIED)
@@ -291,6 +291,7 @@ void FrameData::copy(const BaseData *baseData)
         }
 
         blendFunc = frameData->blendFunc;
+        isTween = frameData->isTween;
     }
 }
 
@@ -389,7 +390,7 @@ bool ContourData::init()
     return true;
 }
 
-void ContourData::addVertex(Point &vertex)
+void ContourData::addVertex(Vec2 &vertex)
 {
     vertexList.push_back(vertex);
 }
