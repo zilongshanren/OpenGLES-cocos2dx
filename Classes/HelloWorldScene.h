@@ -36,6 +36,7 @@ public:
     CREATE_FUNC(HelloWorld);
     
 private:
+    CustomCommand _command;
 
 };
 

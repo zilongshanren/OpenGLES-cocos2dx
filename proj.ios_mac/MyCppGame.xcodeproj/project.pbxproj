@@ -26,6 +26,14 @@
 		1DF5F4E00D08C38300B7A737 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1DF5F4DF0D08C38300B7A737 /* UIKit.framework */; };
 		288765A50DF7441C002DB57D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 288765A40DF7441C002DB57D /* CoreGraphics.framework */; };
 		2905E91D18F7F248004A00D6 /* guanyu1.png in Resources */ = {isa = PBXBuildFile; fileRef = 2905E91C18F7F248004A00D6 /* guanyu1.png */; };
+		295E5B4D1934D67E0019AFCE /* Grille.pvr in Resources */ = {isa = PBXBuildFile; fileRef = 295E5B491934D67E0019AFCE /* Grille.pvr */; };
+		295E5B4E1934D67E0019AFCE /* Grille.pvr in Resources */ = {isa = PBXBuildFile; fileRef = 295E5B491934D67E0019AFCE /* Grille.pvr */; };
+		295E5B4F1934D67E0019AFCE /* Marble.pvr in Resources */ = {isa = PBXBuildFile; fileRef = 295E5B4A1934D67E0019AFCE /* Marble.pvr */; };
+		295E5B501934D67E0019AFCE /* Marble.pvr in Resources */ = {isa = PBXBuildFile; fileRef = 295E5B4A1934D67E0019AFCE /* Marble.pvr */; };
+		295E5B511934D67E0019AFCE /* Rhino565.pvr in Resources */ = {isa = PBXBuildFile; fileRef = 295E5B4B1934D67E0019AFCE /* Rhino565.pvr */; };
+		295E5B521934D67E0019AFCE /* Rhino565.pvr in Resources */ = {isa = PBXBuildFile; fileRef = 295E5B4B1934D67E0019AFCE /* Rhino565.pvr */; };
+		295E5B531934D67E0019AFCE /* Tiger565.pvr in Resources */ = {isa = PBXBuildFile; fileRef = 295E5B4C1934D67E0019AFCE /* Tiger565.pvr */; };
+		295E5B541934D67E0019AFCE /* Tiger565.pvr in Resources */ = {isa = PBXBuildFile; fileRef = 295E5B4C1934D67E0019AFCE /* Tiger565.pvr */; };
 		299F7F8918FEDA4600F5333B /* micronapalmv2.obj in Resources */ = {isa = PBXBuildFile; fileRef = 299F7F8718FEDA4600F5333B /* micronapalmv2.obj */; };
 		299F7F8A18FEDA4600F5333B /* Ninja.obj in Resources */ = {isa = PBXBuildFile; fileRef = 299F7F8818FEDA4600F5333B /* Ninja.obj */; };
 		299F7F8F18FEDBB100F5333B /* ObjSurface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 299F7F8D18FEDBB100F5333B /* ObjSurface.cpp */; };
@@ -240,6 +248,10 @@
 		2905E93018F93686004A00D6 /* Matrix.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Matrix.hpp; sourceTree = "<group>"; };
 		2905E93118F93686004A00D6 /* Quaternion.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Quaternion.hpp; sourceTree = "<group>"; };
 		2905E93218F93686004A00D6 /* Vector.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = Vector.hpp; sourceTree = "<group>"; };
+		295E5B491934D67E0019AFCE /* Grille.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; path = Grille.pvr; sourceTree = "<group>"; };
+		295E5B4A1934D67E0019AFCE /* Marble.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; path = Marble.pvr; sourceTree = "<group>"; };
+		295E5B4B1934D67E0019AFCE /* Rhino565.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; path = Rhino565.pvr; sourceTree = "<group>"; };
+		295E5B4C1934D67E0019AFCE /* Tiger565.pvr */ = {isa = PBXFileReference; lastKnownFileType = file; path = Tiger565.pvr; sourceTree = "<group>"; };
 		299F7F8718FEDA4600F5333B /* micronapalmv2.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = micronapalmv2.obj; sourceTree = "<group>"; };
 		299F7F8818FEDA4600F5333B /* Ninja.obj */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Ninja.obj; sourceTree = "<group>"; };
 		299F7F8D18FEDBB100F5333B /* ObjSurface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ObjSurface.cpp; path = ../Classes/ObjSurface.cpp; sourceTree = "<group>"; };
@@ -487,6 +499,10 @@
 		78C7DDAA14EBA5050085D0C2 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				295E5B491934D67E0019AFCE /* Grille.pvr */,
+				295E5B4A1934D67E0019AFCE /* Marble.pvr */,
+				295E5B4B1934D67E0019AFCE /* Rhino565.pvr */,
+				295E5B4C1934D67E0019AFCE /* Tiger565.pvr */,
 				299F7FA31900133F00F5333B /* Grid16.png */,
 				299F7F8718FEDA4600F5333B /* micronapalmv2.obj */,
 				299F7F8818FEDA4600F5333B /* Ninja.obj */,
@@ -666,10 +682,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				2905E91D18F7F248004A00D6 /* guanyu1.png in Resources */,
+				295E5B4D1934D67E0019AFCE /* Grille.pvr in Resources */,
 				5087E78117EB970100C73F5D /* Icon-120.png in Resources */,
 				5087E78617EB970100C73F5D /* Icon-76.png in Resources */,
 				5087E77F17EB970100C73F5D /* Default@2x.png in Resources */,
 				50EF629917ECD46A001EB2F8 /* Icon-100.png in Resources */,
+				295E5B511934D67E0019AFCE /* Rhino565.pvr in Resources */,
 				1AFAF8BC16D35E4900DB1158 /* CloseNormal.png in Resources */,
 				299F7F8918FEDA4600F5333B /* micronapalmv2.obj in Resources */,
 				29BF390918F41598008A6B6A /* myshader.vert in Resources */,
@@ -677,6 +695,8 @@
 				29BF390D18F415AA008A6B6A /* myshader.frag in Resources */,
 				299F7F8A18FEDA4600F5333B /* Ninja.obj in Resources */,
 				5087E77D17EB970100C73F5D /* Default-568h@2x.png in Resources */,
+				295E5B531934D67E0019AFCE /* Tiger565.pvr in Resources */,
+				295E5B4F1934D67E0019AFCE /* Marble.pvr in Resources */,
 				5087E78517EB970100C73F5D /* Icon-72.png in Resources */,
 				1AFAF8BD16D35E4900DB1158 /* CloseSelected.png in Resources */,
 				50EF62A317ECD613001EB2F8 /* Icon-50.png in Resources */,
@@ -698,9 +718,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				5087E75317EB910900C73F5D /* CloseNormal.png in Resources */,
+				295E5B501934D67E0019AFCE /* Marble.pvr in Resources */,
 				503AE0F817EB97AB00D1A890 /* Icon.icns in Resources */,
 				5087E75417EB910900C73F5D /* CloseSelected.png in Resources */,
+				295E5B4E1934D67E0019AFCE /* Grille.pvr in Resources */,
+				295E5B541934D67E0019AFCE /* Tiger565.pvr in Resources */,
 				5087E75517EB910900C73F5D /* HelloWorld.png in Resources */,
+				295E5B521934D67E0019AFCE /* Rhino565.pvr in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
