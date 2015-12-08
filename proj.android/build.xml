@@ -80,4 +80,12 @@
     <!-- version-tag: 1 -->
     <import file="${sdk.dir}/tools/ant/build.xml" />
 
+    <target name="-pre-compile">
+        <!-- Redefine project.all.jars.path before -compile executes -->
+        <path id="project.all.jars.path">
+            <fileset file="./jars/*.jar" />
+            <fileset file="${sdk.dir}/tools/support/*.jar" />
+        </path>
+    </target>
+
 </project>
